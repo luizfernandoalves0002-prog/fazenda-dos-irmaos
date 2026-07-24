@@ -124,6 +124,16 @@
     .daybar{ position:sticky; bottom:0; background:var(--bg); padding-top:10px; margin-left:-8px; margin-right:-8px; padding-left:8px; padding-right:8px; border-top:1px solid var(--line); z-index:50; }
   }
 
+  @media (max-width: 900px) and (orientation: landscape){
+    .app{ padding:6px 4px 16px; }
+    .masthead{ padding-bottom:6px; margin-bottom:8px; }
+    .stat{ padding:4px 8px; min-width:0; }
+    #gamePanel{ padding:2px; }
+    .gamewrap{ margin:0 auto; width:fit-content; }
+    #gameCanvas{ width:auto; height:88vh; max-width:100%; }
+    .hint{ display:none; }
+  }
+
   .inv-strip{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--line); }
   .inv-pill{ background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius); padding:4px 8px; font-size:0.7rem; font-family:"Consolas",monospace; }
 
@@ -294,7 +304,7 @@
           <button class="action-fab" id="actionFab" type="button" aria-label="Agir">E</button>
         </div>
         <div class="hint hint-desktop"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> anda (ou clique no mapa pra caminhar até lá) · <kbd>E</kbd> agir/cortar/garimpar no que estiver perto</div>
-        <div class="hint hint-mobile">Toque no mapa pra andar até lá · toque no botão <b>E</b> (ou nos botões do painel abaixo) pra agir/cortar/garimpar</div>
+        <div class="hint hint-mobile">Toque no mapa pra andar até lá · toque no botão <b>E</b> (ou nos botões do painel abaixo) pra agir/cortar/garimpar · dica: gire o celular deitado pra ver o mapa em tela cheia</div>
       </div>
 
       <div class="panel" id="side">
