@@ -1,0 +1,2204 @@
+<title>Fazenda dos Irmãos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg: #e8e6d6; --panel: #f5f3e8; --panel-2: #ded9c4; --ink: #2a2620;
+    --ink-dim: #6b6656; --line: #b9b298; --accent: #4f7a2f; --accent-ink: #f5f3e8;
+    --gold: #9c6f1e; --danger: #a3402c; --steel: #7d8579; --radius: 3px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #181c13; --panel: #23281b; --panel-2: #2e3423; --ink: #ece7d6;
+      --ink-dim: #a19c88; --line: #454c37; --accent: #8fbf5a; --accent-ink: #182110;
+      --gold: #d3a13a; --danger: #d8674a; --steel: #9aa393;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #181c13; --panel: #23281b; --panel-2: #2e3423; --ink: #ece7d6;
+    --ink-dim: #a19c88; --line: #454c37; --accent: #8fbf5a; --accent-ink: #182110;
+    --gold: #d3a13a; --danger: #d8674a; --steel: #9aa393;
+  }
+  :root[data-theme="light"]{
+    --bg: #e8e6d6; --panel: #f5f3e8; --panel-2: #ded9c4; --ink: #2a2620;
+    --ink-dim: #6b6656; --line: #b9b298; --accent: #4f7a2f; --accent-ink: #f5f3e8;
+    --gold: #9c6f1e; --danger: #a3402c; --steel: #7d8579;
+  }
+
+  *{ box-sizing: border-box; }
+  body{ margin:0; }
+  .app{
+    background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", "Segoe UI Semibold", system-ui, -apple-system, sans-serif;
+    min-height: 100vh; padding: 20px 16px 60px;
+  }
+  .wrap{ max-width: 1180px; margin: 0 auto; }
+
+  .masthead{
+    border-bottom: 3px double var(--line); padding-bottom: 12px; margin-bottom: 16px; position:relative;
+  }
+  .masthead-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .masthead h1{ margin:0; font-size: clamp(1.4rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; text-wrap: balance; }
+  .masthead .sub{ color: var(--ink-dim); font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 4px;}
+  .stat-row{ display:flex; gap:10px; flex-wrap: wrap; align-items:center; margin-top:12px; }
+  .stat{ background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 12px; min-width: 84px; text-align:right; }
+  .stat .k{ display:block; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-dim); }
+  .stat .v{ font-variant-numeric: tabular-nums; font-weight:700; font-size: 1.05rem; font-family: "Consolas", "Cascadia Mono", monospace; }
+
+  .hamburger-btn{
+    display:none; flex:0 0 auto; align-items:center; justify-content:center;
+    width:40px; height:40px; font-size:1.15rem; line-height:1;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); cursor:pointer;
+  }
+  .menu-backdrop{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:190; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .menu-backdrop.open{ opacity:1; pointer-events:auto; }
+  .menu-drawer{ display:flex; flex-direction:row; flex-wrap:wrap; gap:8px; align-items:center; }
+  .menu-drawer-head{ display:none; }
+  .menu-divider{ display:none; }
+
+  @media (max-width: 700px){
+    .hamburger-btn{ display:inline-flex; }
+    .menu-backdrop{ display:block; }
+    .menu-drawer{
+      position:fixed; top:0; right:0; bottom:0; width:82%; max-width:300px;
+      background:var(--panel); flex-direction:column; align-items:stretch; gap:8px;
+      padding:16px; transform:translateX(100%); transition:transform .25s ease;
+      z-index:200; overflow-y:auto; box-shadow:-6px 0 24px rgba(0,0,0,0.35); border-left:1px solid var(--line);
+    }
+    .menu-drawer.open{ transform:translateX(0); }
+    .menu-drawer-head{ display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; margin-bottom:2px; border-bottom:1px solid var(--line); }
+    .menu-drawer-head span{ font-weight:800; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.04em; }
+    .menu-drawer .themebtn{ text-align:left; padding:11px 12px; font-size:0.82rem; width:100%; }
+    .menu-divider{
+      display:block; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim);
+      margin:8px 0 0; padding-top:10px; border-top:1px dashed var(--line);
+    }
+  }
+
+  button{
+    font-family: inherit; cursor:pointer; border-radius: var(--radius); border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink); padding: 5px 8px; font-size: 0.74rem; font-weight:600;
+    transition: background 0.12s, transform 0.05s;
+  }
+  button:hover:not(:disabled){ background: var(--panel-2); }
+  button:active:not(:disabled){ transform: translateY(1px); }
+  button:disabled{ opacity: 0.45; cursor:not-allowed; }
+  button.primary{ background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.primary:hover:not(:disabled){ filter: brightness(1.08); }
+  button.ghost{ background: transparent; }
+  button:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){ *{ transition: none !important; } }
+
+  .grid{ display:grid; grid-template-columns: 1fr 320px; grid-template-areas: "game side" "log log"; gap: 16px; }
+  @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; grid-template-areas: "game" "side" "log"; } }
+
+  .panel{ background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .panel h2{ margin: 0 0 10px; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); font-weight: 700; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+
+  #gamePanel{ grid-area: game; }
+  #side{ grid-area: side; }
+  #logPanel{ grid-area: log; }
+
+  .gamewrap{ position:relative; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; background:#232920; line-height:0; }
+  #gameCanvas{ display:block; width:100%; height:auto; cursor: pointer; touch-action:none; user-select:none; }
+  .hint{ margin-top:8px; font-size:0.68rem; color: var(--ink-dim); }
+  .hint kbd{ background:var(--panel-2); border:1px solid var(--line); border-radius:2px; padding:1px 5px; font-family:"Consolas",monospace; }
+  .hint-mobile{ display:none; }
+
+  .action-fab{
+    display:none; position:absolute; right:14px; bottom:14px; width:56px; height:56px; border-radius:50%;
+    align-items:center; justify-content:center; background:var(--accent); color:var(--accent-ink);
+    border:2px solid rgba(255,255,255,0.3); font-weight:800; font-size:1.15rem;
+    box-shadow:0 4px 14px rgba(0,0,0,0.45); z-index:20;
+  }
+  .action-fab:active{ transform:scale(0.94); }
+
+  @media (max-width: 700px){
+    .app{ padding:10px 4px 24px; }
+    #gamePanel{ padding:4px; }
+    #gamePanel h2{ display:none; }
+    .hint-desktop{ display:none; }
+    .hint-mobile{ display:block; }
+    .action-fab{ display:flex; }
+    button{ padding:7px 10px; font-size:0.78rem; }
+    .zone-actions button, table.market button{ min-height:40px; }
+    .daybar{ position:sticky; bottom:0; background:var(--bg); padding-top:10px; margin-left:-8px; margin-right:-8px; padding-left:8px; padding-right:8px; border-top:1px solid var(--line); z-index:50; }
+  }
+
+  .inv-strip{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+  .inv-pill{ background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius); padding:4px 8px; font-size:0.7rem; font-family:"Consolas",monospace; }
+
+  .zone-empty{ font-size:0.8rem; color: var(--ink-dim); line-height:1.5; }
+  .zone-title{ font-weight:800; font-size:0.9rem; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.03em; }
+  .zone-meta{ font-size:0.7rem; color: var(--ink-dim); font-family:"Consolas",monospace; margin-bottom:8px; }
+  .zone-actions{ display:flex; flex-direction:column; gap:6px; }
+  .zone-actions button{ text-align:left; }
+  .zone-bar{ height:6px; background: var(--line); border-radius: 3px; overflow:hidden; margin-bottom:8px; }
+  .zone-bar > i{ display:block; height:100%; background: var(--accent); }
+  .warn{ color: var(--danger); font-weight:700; }
+  .zone-sub{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
+
+  table.market{ width:100%; border-collapse: collapse; font-size: 0.76rem; }
+  table.market th{ text-align:left; font-size:0.6rem; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-dim); font-weight:600; padding-bottom:6px; border-bottom:1px solid var(--line);}
+  table.market td{ padding: 5px 3px; border-bottom: 1px solid var(--line); vertical-align:middle; }
+  table.market td.num{ font-variant-numeric: tabular-nums; font-family:"Consolas",monospace; text-align:right; }
+  .price-up{ color: var(--accent); } .price-down{ color: var(--danger); }
+
+  .log{ max-height: 220px; overflow-y:auto; font-family:"Consolas","Cascadia Mono",monospace; font-size:0.78rem; line-height:1.6; }
+  .log div{ border-bottom: 1px dashed var(--line); padding: 3px 0; }
+  .log .day{ color: var(--gold); font-weight:700; }
+  .log .tip{ color: var(--accent); }
+
+  .daybar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; flex-wrap:wrap;}
+  .daybar .msg{ font-size:0.8rem; color: var(--ink-dim); }
+  .daybar-left{ flex:1; min-width:220px; }
+  .daybar-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .day-progress{ height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:8px; width:100%; max-width:280px; }
+  .day-progress i{ display:block; height:100%; background:var(--accent); width:0%; }
+  .speed-group{ display:flex; gap:4px; }
+  .speedbtn.sel{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+  .bigbtn{ font-size: 0.95rem; padding: 10px 22px; }
+  .themebtn{ font-size:0.68rem; }
+
+  .custpop{
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:300;
+    width:min(280px, calc(100vw - 32px)); max-height:80vh; overflow-y:auto;
+    background: var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+    padding:14px; box-shadow: 0 12px 40px rgba(0,0,0,0.4); display:none;
+  }
+  .custpop.open{ display:block; }
+  .custpop-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .custpop-head button{ width:28px; height:28px; padding:0; }
+  .custpop label{ display:block; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim); margin-bottom:4px; }
+  .custpop input[type=text]{
+    width:100%; padding:6px 8px; margin-bottom:10px; border:1px solid var(--line); border-radius:var(--radius);
+    background: var(--panel-2); color: var(--ink); font-family:inherit; font-size:0.8rem;
+  }
+  .swatches{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .swatch{ width:24px; height:24px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; }
+  .swatch.sel{ border-color: var(--gold); }
+
+  #bagPop{ width:min(300px, calc(100vw - 32px)); }
+  .bag-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; width:100%; }
+  .bag-slot{ background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius); padding:8px 4px; text-align:center; }
+  .bag-slot.empty{ opacity:0.4; }
+  .bag-slot .icon{ width:28px; height:28px; margin:0 auto 4px; }
+  .bag-slot .icon svg{ width:100%; height:100%; display:block; }
+  .bag-slot .qty{ font-family:"Consolas",monospace; font-weight:700; font-size:0.82rem; }
+  .bag-slot .label{ font-size:0.58rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-dim); margin-top:2px; }
+
+  .login-overlay{ position:fixed; inset:0; background:var(--bg); z-index:1000; display:flex; align-items:flex-start; justify-content:center; padding:32px 16px; overflow-y:auto; }
+  .login-overlay.hidden{ display:none; }
+  .login-card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px; max-width:440px; width:100%; }
+  .login-card h1{ margin:0 0 4px; font-size:1.4rem; text-transform:uppercase; letter-spacing:0.02em; font-weight:800; }
+  .login-sub{ color:var(--ink-dim); font-size:0.78rem; margin:0 0 16px; }
+  .profile-row{ display:flex; align-items:center; gap:6px; padding:8px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .profile-row .pname{ flex:1; font-weight:700; font-size:0.85rem; min-width:80px; }
+  .profile-row input[type=password]{ width:92px; padding:5px 6px; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel-2); color:var(--ink); font-size:0.75rem; }
+  .login-error{ width:100%; color:var(--danger); font-size:0.7rem; margin-top:2px; }
+  .login-divider{ margin:18px 0 12px; font-size:0.66rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim); text-align:center; border-top:1px dashed var(--line); padding-top:14px; }
+  .login-form label{ display:block; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim); margin:10px 0 4px; }
+  .login-form input[type=text], .login-form input[type=password]{
+    width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--panel-2); color:var(--ink); font-family:inherit; font-size:0.85rem;
+  }
+  .login-note{ margin-top:12px; font-size:0.65rem; color:var(--ink-dim); line-height:1.5; }
+</style>
+
+<div class="app">
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <h1>Fazenda dos Irmãos</h1>
+      <p class="login-sub">Entre no seu perfil ou crie um novo fazendeiro.</p>
+      <div id="profileList"></div>
+      <div class="login-divider">criar novo perfil</div>
+      <div class="login-form">
+        <label for="newName">Nome do fazendeiro</label>
+        <input type="text" id="newName" maxlength="16" placeholder="Seu nome">
+        <label for="newMascotName">Nome do mascote</label>
+        <input type="text" id="newMascotName" maxlength="16" placeholder="Ex: Rex">
+        <label for="newPass">Senha</label>
+        <input type="password" id="newPass" maxlength="24" placeholder="Opcional">
+        <label>Cor da roupa</label>
+        <div class="swatches" id="newColorSwatches"></div>
+        <label>Cor do mascote</label>
+        <div class="swatches" id="newMascotSwatches"></div>
+        <button class="primary" id="createProfileBtn" type="button" style="width:100%;margin-top:6px;">Criar e entrar</button>
+        <div class="login-note">O campo de senha aqui é só estético: este jogo roda inteiro no seu navegador, sem servidor, então não existe proteção de verdade. Não reutilize uma senha que você usa em outros lugares.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-overlay hidden" id="compareOverlay">
+    <div class="login-card" style="max-width:600px;">
+      <h1>Comparar Fazendas</h1>
+      <p class="login-sub" id="compareSub"></p>
+      <div id="compareGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"></div>
+      <button class="ghost" id="closeCompareBtn" type="button" style="margin-top:16px;width:100%;">Fechar</button>
+    </div>
+  </div>
+
+  <div class="menu-backdrop" id="menuBackdrop"></div>
+
+  <div class="wrap">
+    <div class="masthead">
+      <div class="masthead-row">
+        <div>
+          <h1>Fazenda dos Irmãos</h1>
+          <div class="sub" id="subtitle">Livro de gestão — lavoura &amp; criação</div>
+        </div>
+        <button class="hamburger-btn" id="menuToggle" type="button" aria-label="Abrir menu">☰</button>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><span class="k">Dia</span><span class="v" id="statDay">1</span></div>
+        <div class="stat"><span class="k">Caixa</span><span class="v" id="statCash">R$0</span></div>
+        <div class="stat"><span class="k">Patrimônio</span><span class="v" id="statNet">R$0</span></div>
+      </div>
+      <div class="menu-drawer" id="menuDrawer">
+        <div class="menu-drawer-head"><span>Menu</span><button class="ghost" id="menuClose" type="button" aria-label="Fechar menu">✕</button></div>
+        <button class="ghost themebtn" id="custToggle" type="button">Personagem</button>
+        <button class="ghost themebtn" id="bagToggle" type="button">Mochila</button>
+        <button class="ghost themebtn" id="themeToggle" title="Alternar tema" type="button">Tema</button>
+        <button class="ghost themebtn" id="switchProfileBtn" title="Trocar de perfil" type="button">Trocar perfil</button>
+        <button class="ghost themebtn" id="exportBtn" title="Baixar seu save pra compartilhar" type="button">Exportar</button>
+        <button class="ghost themebtn" id="importBtn" title="Carregar o save de outra pessoa" type="button">Importar</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+        <button class="ghost themebtn" id="resetBtn" title="Reiniciar jogo" type="button">Reiniciar</button>
+        <div class="menu-divider">Testes</div>
+        <button class="ghost themebtn" id="cheatBtn" title="Só pra testar — adiciona dinheiro" type="button">+R$1.000 (teste)</button>
+        <button class="ghost themebtn" id="cheatProduceBtn" title="Só pra testar — coloca ovos e leite no chão" type="button">+Ovos/Leite (teste)</button>
+        <button class="ghost themebtn" id="cheatMaterialsBtn" title="Só pra testar — adiciona madeira, pedra, minério e água" type="button">+Materiais (teste)</button>
+      </div>
+    </div>
+
+    <div class="custpop" id="custPop">
+      <div class="custpop-head"><label style="margin:0;">Personagem</label><button class="ghost" id="custClose" type="button" aria-label="Fechar">✕</button></div>
+      <label for="nameInput">Nome do fazendeiro</label>
+      <input type="text" id="nameInput" maxlength="16" />
+      <label>Cor da roupa</label>
+      <div class="swatches" id="swatches"></div>
+      <label for="mascotNameInput">Nome do mascote</label>
+      <input type="text" id="mascotNameInput" maxlength="16" />
+      <label>Cor do mascote</label>
+      <div class="swatches" id="mascotSwatches"></div>
+    </div>
+    <div class="custpop" id="bagPop">
+      <div class="custpop-head"><label style="margin:0;">Sua mochila</label><button class="ghost" id="bagClose" type="button" aria-label="Fechar">✕</button></div>
+      <div class="bag-grid" id="bagGrid"></div>
+    </div>
+
+    <div class="grid">
+      <div class="panel" id="gamePanel">
+        <h2>Fazenda — vista de cima</h2>
+        <div class="gamewrap">
+          <canvas id="gameCanvas" width="800" height="560"></canvas>
+          <button class="action-fab" id="actionFab" type="button" aria-label="Agir">E</button>
+        </div>
+        <div class="hint hint-desktop"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> anda (ou clique no mapa pra caminhar até lá) · <kbd>E</kbd> agir/cortar/garimpar no que estiver perto</div>
+        <div class="hint hint-mobile">Toque no mapa pra andar até lá · toque no botão <b>E</b> (ou nos botões do painel abaixo) pra agir/cortar/garimpar</div>
+      </div>
+
+      <div class="panel" id="side">
+        <h2 id="zoneHeading">Aqui</h2>
+        <div class="inv-strip" id="invStrip"></div>
+        <div id="zonePanel"></div>
+      </div>
+
+      <div class="panel" id="logPanel">
+        <h2>Diário da Fazenda</h2>
+        <div class="log" id="logContainer"></div>
+      </div>
+    </div>
+
+    <div class="daybar">
+      <div class="daybar-left">
+        <div class="msg" id="dayMsg">O dia passa sozinho — acelere quando quiser, ou pule na hora.</div>
+        <div class="day-progress"><i id="dayProgressBar"></i></div>
+      </div>
+      <div class="daybar-right">
+        <div class="speed-group" id="speedGroup">
+          <button class="speedbtn sel" data-speed="1" type="button">1x</button>
+          <button class="speedbtn" data-speed="2" type="button">2x</button>
+          <button class="speedbtn" data-speed="4" type="button">4x</button>
+        </div>
+        <button class="primary bigbtn" id="advanceBtn" type="button">Avançar dia →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CROPS = {
+    milho: { name:"Milho", growDays:3, seedCost:10, yMin:25, yMax:35, base:1.6, color:"#e0b23a" },
+    soja:  { name:"Soja",  growDays:4, seedCost:18, yMin:15, yMax:22, base:3.2, color:"#6b8f3f" },
+    trigo: { name:"Trigo", growDays:3, seedCost:14, yMin:20, yMax:28, base:2.0, color:"#c9962e" },
+    arroz:  { name:"Arroz",  growDays:4, seedCost:16, yMin:18, yMax:26, base:2.4, color:"#e8dfa8" },
+    feijao: { name:"Feijão", growDays:3, seedCost:12, yMin:20, yMax:30, base:1.8, color:"#6b4a2e" },
+    cafe:   { name:"Café",   growDays:6, seedCost:30, yMin:10, yMax:16, base:5.5, color:"#4a2e1a" }
+  };
+  var ANIMAL_TYPES = {
+    galinha: { name:"Galinha", buyCost:25, feedCost:2, product:"ovos", yMin:1, yMax:3, base:0.8, startMax:3, color:"#f2ede0" },
+    vaca:    { name:"Vaca",    buyCost:150, feedCost:8, product:"leite", yMin:8, yMax:14, base:1.2, startMax:2, color:"#f2ede0" },
+    porco:   { name:"Porco",  buyCost:60, feedCost:5, growDays:10, sellMin:220, sellMax:280, startMax:2, color:"#eeb6ae" }
+  };
+  var PRODUCT_NAMES = { milho:"Milho", soja:"Soja", trigo:"Trigo", arroz:"Arroz", feijao:"Feijão", cafe:"Café", ovos:"Ovos", leite:"Leite" };
+  var MATERIAL_NAMES = { madeira:"Madeira", pedra:"Pedra", minerio:"Minério", agua:"Água" };
+  var BAG_ICONS = {
+    madeira: '<svg viewBox="0 0 24 24"><g transform="rotate(-10 12 12)"><rect x="3" y="9" width="18" height="7" rx="2" fill="#8a6a3e" stroke="#5a4128" stroke-width="1"/><line x1="6" y1="12.5" x2="18" y2="12.5" stroke="#5a4128" stroke-width="1"/></g></svg>',
+    pedra: '<svg viewBox="0 0 24 24"><polygon points="4,17 8,6 16,5 20,13 17,19 7,20" fill="#8a8577" stroke="#6b6659" stroke-width="1"/></svg>',
+    minerio: '<svg viewBox="0 0 24 24"><polygon points="12,3 19,12 12,21 5,12" fill="#d3a13a" stroke="#f2d98a" stroke-width="1.2"/></svg>',
+    agua: '<svg viewBox="0 0 24 24"><path d="M12 3 C9 8 5 12.5 5 16 a7 7 0 0 0 14 0 C19 12.5 15 8 12 3 Z" fill="#3a7a9a" stroke="#2f6a7a" stroke-width="1"/><ellipse cx="9.5" cy="15" rx="1.6" ry="2.4" fill="rgba(255,255,255,0.35)"/></svg>',
+    milho: '<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="15" rx="3" fill="#e0b23a"/><path d="M7 16 Q12 12 17 16 L17 20 Q12 17 7 20 Z" fill="#5c8a3d"/></svg>',
+    soja: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#6b8f3f"/><circle cx="9" cy="10" r="2" fill="#e8dfa8"/><circle cx="15" cy="10" r="2" fill="#e8dfa8"/><circle cx="12" cy="15" r="2" fill="#e8dfa8"/></svg>',
+    trigo: '<svg viewBox="0 0 24 24"><rect x="11" y="8" width="2" height="13" fill="#a67c2e"/><ellipse cx="9" cy="7" rx="2" ry="3" fill="#c9962e"/><ellipse cx="15" cy="7" rx="2" ry="3" fill="#c9962e"/><ellipse cx="12" cy="4" rx="2" ry="3" fill="#c9962e"/></svg>',
+    arroz: '<svg viewBox="0 0 24 24"><rect x="11" y="8" width="2" height="13" fill="#8a9a5e"/><ellipse cx="9" cy="8" rx="1.8" ry="2.6" fill="#e8dfa8"/><ellipse cx="15" cy="8" rx="1.8" ry="2.6" fill="#e8dfa8"/><ellipse cx="12" cy="5" rx="1.8" ry="2.6" fill="#e8dfa8"/><ellipse cx="9.5" cy="11.5" rx="1.8" ry="2.6" fill="#e8dfa8"/><ellipse cx="14.5" cy="11.5" rx="1.8" ry="2.6" fill="#e8dfa8"/></svg>',
+    feijao: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="7" ry="9" fill="#5c8a3d"/><ellipse cx="9" cy="9" rx="2.4" ry="1.6" fill="#6b4a2e" transform="rotate(-30 9 9)"/><ellipse cx="14" cy="12" rx="2.4" ry="1.6" fill="#6b4a2e" transform="rotate(20 14 12)"/><ellipse cx="10" cy="16" rx="2.4" ry="1.6" fill="#6b4a2e" transform="rotate(-10 10 16)"/></svg>',
+    cafe: '<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.4" fill="#4a2e1a"/><circle cx="15" cy="10" r="3.4" fill="#4a2e1a"/><circle cx="11" cy="15" r="3.4" fill="#4a2e1a"/><line x1="8" y1="8" x2="10" y2="10" stroke="#7a5236" stroke-width="0.8"/><line x1="14" y1="9" x2="16" y2="11" stroke="#7a5236" stroke-width="0.8"/></svg>',
+    ovos: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="13" rx="7" ry="9" fill="#f5f1e4" stroke="#d9d2ba" stroke-width="1"/></svg>',
+    leite: '<svg viewBox="0 0 24 24"><path d="M9 3h6l1 4-1 2v11a1 1 0 0 1-1 1H10a1 1 0 0 1-1-1V9L8 7z" fill="#eef3f7" stroke="#b9c4cc" stroke-width="1"/><rect x="8.4" y="8" width="7.2" height="3" fill="#2f6a7a"/></svg>'
+  };
+  var NPC_OFFERS = [
+    { kind:"madeira", qty:10, cost:25 },
+    { kind:"pedra", qty:10, cost:20 },
+    { kind:"minerio", qty:5, cost:40 }
+  ];
+  var WEAPON_COST = 200;
+  var WOLF_INTERVAL_DAYS = 3;
+  var PLAYER_COLORS = ["#4f7a2f","#a3402c","#2f6a7a","#9c6f1e","#6b4f9c","#2a2620"];
+
+  var TIPS = [
+    "Diversificar o plantio entre milho, soja e trigo reduz o risco de perder tudo com um clima ruim.",
+    "Vender a colheita inteira no mesmo dia nem sempre é o melhor negócio — acompanhar o preço ajuda a lucrar mais.",
+    "Animal bem alimentado produz mais e adoece menos: ração em dia é investimento, não gasto.",
+    "Guardar uma reserva de caixa ajuda a atravessar dias de preço baixo sem precisar vender com pressa.",
+    "Expandir a produção só compensa quando o retorno esperado supera o custo extra de manutenção.",
+    "Registrar o que entra e sai do caixa é a base de qualquer gestão rural, mesmo em pequena escala.",
+    "Preço de mercado sobe e desce sozinho — parte do trabalho de gestão é escolher a hora certa de vender.",
+    "Madeira e pedra guardadas sem uso não rendem nada — planeje uma construção antes de acumular demais."
+  ];
+  var WEATHER = [
+    { key:"sol", text:"Dia de sol firme, condições normais para o trabalho.", bonus:1.0, w:40 },
+    { key:"chuva", text:"Chuva bem distribuída favoreceu a lavoura.", bonus:1.12, w:20 },
+    { key:"seca", text:"Seca leve reduziu um pouco o rendimento esperado.", bonus:0.88, w:15 },
+    { key:"vento", text:"Vento forte à tarde, mas sem prejuízo relevante.", bonus:1.0, w:15 },
+    { key:"praga", text:"Praga foi avistada nos arredores — vale ficar de olho.", bonus:0.95, w:10 }
+  ];
+
+  var PLOT_COUNT = 9;
+  var PLOT_UNLOCKED_START = 4;
+  var COLS = 19, ROWS = 13;
+  var TREE_POS = [[15,2],[16,3],[17,2],[15,4],[16,5],[17,5],[15,6],[16,1]];
+  var ROCK_POS = [[5,9],[6,10],[7,9],[8,10],[6,9],[15,9],[16,10],[17,9]];
+
+  var state = null;
+  var activeProfile = null;
+  var gameActive = false;
+
+  function buildFreshResourceNodes(){
+    var nodes = [];
+    TREE_POS.forEach(function(p,i){ nodes.push({ id:"tree"+i, kind:"tree", wx:p[0]+0.5, wy:p[1]+0.5, health:3, maxHealth:3, respawnDay:null }); });
+    ROCK_POS.forEach(function(p,i){ nodes.push({ id:"rock"+i, kind:"rock", wx:p[0]+0.5, wy:p[1]+0.5, health:3, maxHealth:3, respawnDay:null }); });
+    return nodes;
+  }
+
+  function freshState(playerInit){
+    var plots = [];
+    for (var i=0;i<PLOT_COUNT;i++) plots.push({ locked: i>=PLOT_UNLOCKED_START, crop:null, plantedDay:null });
+    var animals = {};
+    Object.keys(ANIMAL_TYPES).forEach(function(t){
+      animals[t] = { count:0, max: ANIMAL_TYPES[t].startMax, fedToday:0, missStreak:0, pigs:[], ready:0, thirst:0 };
+    });
+    var prices = {};
+    Object.keys(PRODUCT_NAMES).forEach(function(p){ prices[p] = 1; });
+    var player = Object.assign({ name:"Fazendeiro", color: PLAYER_COLORS[0], mascotName:"Rex", mascotColor: PLAYER_COLORS[1] }, playerInit||{});
+    return {
+      day: 1, cash: 500, plots: plots, animals: animals,
+      warehouse: { milho:0, soja:0, trigo:0, arroz:0, feijao:0, cafe:0, ovos:0, leite:0 },
+      inventory: { madeira:0, pedra:0, minerio:0, agua:0 },
+      built: { celeiro:false, casaReformada:false, poco:false, espantalho:false, silo:false, moinho:false, estufa:false, racao:false },
+      wellLastCollectDay: null,
+      resourceNodes: buildFreshResourceNodes(),
+      groundItems: [],
+      hasWeapon: false,
+      wolf: null,
+      priceMult: prices, prevPriceMult: JSON.parse(JSON.stringify(prices)),
+      yieldBonus: 1,
+      player: player,
+      log: [{ day:1, text:"Livro aberto. Bem-vindo à sua terra e ao seu casebre.", tip:false }]
+    };
+  }
+
+  function normalizeState(s){
+    if (!s.inventory) s.inventory = { madeira:0, pedra:0, minerio:0, agua:0 };
+    if (typeof s.inventory.agua!=="number") s.inventory.agua = 0;
+    if (s.wellLastCollectDay===undefined) s.wellLastCollectDay = null;
+    if (!s.built) s.built = { celeiro:false, casaReformada:false, poco:false, espantalho:false, silo:false, moinho:false };
+    if (s.built.poco===undefined) s.built.poco = false;
+    if (s.built.espantalho===undefined) s.built.espantalho = false;
+    if (s.built.silo===undefined) s.built.silo = false;
+    if (s.built.moinho===undefined) s.built.moinho = false;
+    if (s.built.estufa===undefined) s.built.estufa = false;
+    if (s.built.racao===undefined) s.built.racao = false;
+    ["milho","soja","trigo","arroz","feijao","cafe","ovos","leite"].forEach(function(k){
+      if (typeof s.warehouse[k]!=="number") s.warehouse[k] = 0;
+      if (typeof s.priceMult[k]!=="number") s.priceMult[k] = 1;
+      if (typeof s.prevPriceMult[k]!=="number") s.prevPriceMult[k] = 1;
+    });
+    Object.keys(s.animals||{}).forEach(function(t){
+      if (typeof s.animals[t].ready!=="number") s.animals[t].ready = 0;
+      if (typeof s.animals[t].thirst!=="number") s.animals[t].thirst = 0;
+    });
+    if (!s.resourceNodes) s.resourceNodes = buildFreshResourceNodes();
+    if (!s.groundItems) s.groundItems = [];
+    if (typeof s.hasWeapon !== "boolean") s.hasWeapon = false;
+    if (s.wolf === undefined) s.wolf = null;
+    if (!s.player.mascotName) s.player.mascotName = "Rex";
+    if (!s.player.mascotColor) s.player.mascotColor = PLAYER_COLORS[1];
+    return s;
+  }
+
+  function profileSaveKey(name){ return "fazenda-save-v4-" + name; }
+  function loadProfileState(name){
+    try { var raw = localStorage.getItem(profileSaveKey(name)); if (raw) return normalizeState(JSON.parse(raw)); } catch(e){}
+    return null;
+  }
+  function saveState(){
+    if (!activeProfile) return;
+    try { localStorage.setItem(profileSaveKey(activeProfile), JSON.stringify(state)); } catch(e){}
+  }
+  function loadProfiles(){
+    try { var raw = localStorage.getItem("fazenda-profiles-v1"); return raw ? JSON.parse(raw) : []; } catch(e){ return []; }
+  }
+  function saveProfiles(list){ try { localStorage.setItem("fazenda-profiles-v1", JSON.stringify(list)); } catch(e){} }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
+  }
+
+  function fmtMoney(v){ return "R$" + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+
+  function currentPrice(product){
+    var isCrop = CROPS.hasOwnProperty(product);
+    var base = isCrop ? CROPS[product].base : ANIMAL_TYPES[product==="ovos"?"galinha":"vaca"].base;
+    var price = base * state.priceMult[product];
+    if (isCrop && state.built.silo) price *= 1.08;
+    return price;
+  }
+
+  function netWorth(){
+    var v = state.cash;
+    Object.keys(state.warehouse).forEach(function(p){ v += state.warehouse[p]*currentPrice(p); });
+    Object.keys(state.animals).forEach(function(t){ v += state.animals[t].count * ANIMAL_TYPES[t].buyCost * 0.6; });
+    state.plots.forEach(function(p){ if(!p.locked) v += 40; });
+    return v;
+  }
+
+  function addLog(text, tip){
+    state.log.unshift({ day: state.day, text: text, tip: !!tip });
+    if (state.log.length > 80) state.log.length = 80;
+  }
+
+  function weightedPick(list){
+    var total = list.reduce(function(a,b){return a+b.w;},0);
+    var r = Math.random()*total;
+    for (var i=0;i<list.length;i++){ r -= list[i].w; if (r<=0) return list[i]; }
+    return list[list.length-1];
+  }
+
+  function plotUnlockCost(i){
+    var base = 80 + 40*i;
+    return Math.round(base * (state.built && state.built.casaReformada ? 0.7 : 1));
+  }
+  function hasMaterials(cost){
+    return Object.keys(cost).every(function(k){ return state.inventory[k] >= cost[k]; });
+  }
+
+  // ---- zones (world layout, tile units) ----
+  var ZONES = (function(){
+    var zones = []; var idx=0;
+    for (var ry=0; ry<3; ry++){
+      for (var rx=0; rx<3; rx++){
+        zones.push({ key:"field-"+idx, kind:"field", plotIndex: idx, gx:1+rx, gy:4+ry, w:1, h:1 });
+        idx++;
+      }
+    }
+    zones.push({ key:"home", kind:"home", gx:1, gy:1, w:2, h:2, label:"Casebre" });
+    zones.push({ key:"pen-galinha", kind:"pen", animalType:"galinha", gx:9, gy:1, w:2, h:2, label:"Galinheiro" });
+    zones.push({ key:"pen-vaca",    kind:"pen", animalType:"vaca",    gx:12, gy:1, w:2, h:2, label:"Curral de vacas" });
+    zones.push({ key:"pen-porco",   kind:"pen", animalType:"porco",  gx:9, gy:5, w:2, h:2, label:"Chiqueiro" });
+    zones.push({ key:"market", kind:"market", gx:12, gy:5, w:2, h:2, label:"Mercado" });
+    zones.push({ key:"npc-vendedor", kind:"npc", gx:14, gy:6, w:1, h:1, label:"Seu Tião" });
+    return zones;
+  })();
+
+  // ---- actions ----
+  function unlockPlot(i){
+    var p = state.plots[i]; if (!p.locked) return;
+    var cost = plotUnlockCost(i); if (state.cash < cost) return;
+    state.cash -= cost; p.locked = false;
+    addLog("Novo talhão desbravado por " + fmtMoney(cost) + "."); afterAction();
+  }
+  function plant(i, cropKey){
+    var p = state.plots[i]; var def = CROPS[cropKey];
+    if (p.locked || p.crop || state.cash < def.seedCost) return;
+    state.cash -= def.seedCost; p.crop = cropKey; p.plantedDay = state.day;
+    addLog("Plantio de " + def.name + " no talhão " + (i+1) + "."); afterAction();
+  }
+  function harvest(i){
+    var p = state.plots[i]; if (!p.crop) return;
+    var def = CROPS[p.crop]; var daysGrown = state.day - p.plantedDay;
+    if (daysGrown < cropGrowDays(p.crop)) return;
+    var qty = Math.round((def.yMin + Math.random()*(def.yMax-def.yMin)) * state.yieldBonus * (state.built.moinho?1.1:1));
+    state.warehouse[p.crop] += qty;
+    addLog("Colheita: " + qty + " un. de " + def.name + " (talhão " + (i+1) + ").");
+    p.crop = null; p.plantedDay = null; afterAction();
+  }
+  function buyAnimal(type){
+    var a = state.animals[type]; var def = ANIMAL_TYPES[type];
+    if (a.count >= a.max || state.cash < def.buyCost) return;
+    state.cash -= def.buyCost; a.count++;
+    if (type==="porco") a.pigs.push({ boughtDay: state.day });
+    addLog(def.name + " adquirido por " + fmtMoney(def.buyCost) + "."); afterAction();
+  }
+  var PEN_EXPAND_BASE = { galinha:60, vaca:250, porco:120 };
+  var PEN_MAX_LEVEL = 100;
+  function penLevel(type){ return state.animals[type].max - ANIMAL_TYPES[type].startMax; }
+  function penExpandCost(type){
+    return Math.round(PEN_EXPAND_BASE[type] * Math.pow(1.5, penLevel(type)));
+  }
+  function expandPen(type){
+    var a = state.animals[type];
+    var levelBefore = penLevel(type);
+    if (levelBefore+1 >= PEN_MAX_LEVEL) return;
+    var cost = penExpandCost(type); if (state.cash < cost) return;
+    state.cash -= cost; a.max++;
+    addLog("Cercado de " + ANIMAL_TYPES[type].name.toLowerCase() + " subiu pro nível " + (levelBefore+2) + " por " + fmtMoney(cost) + "."); afterAction();
+  }
+  function feedAll(type){
+    var a = state.animals[type]; var def = ANIMAL_TYPES[type];
+    var unfed = a.count - a.fedToday; if (unfed <= 0) return;
+    var cost = Math.round(unfed * def.feedCost * (state.built.racao ? 0.8 : 1)); if (state.cash < cost) return;
+    state.cash -= cost; a.fedToday = a.count;
+    addLog("Ração distribuída para " + unfed + " " + def.name.toLowerCase() + "(s) — " + fmtMoney(cost) + "."); afterAction();
+  }
+  function sellPig(idx){
+    var a = state.animals.porco; var pig = a.pigs[idx]; if (!pig) return;
+    var grown = state.day - pig.boughtDay; if (grown < ANIMAL_TYPES.porco.growDays) return;
+    var val = Math.round(ANIMAL_TYPES.porco.sellMin + Math.random()*(ANIMAL_TYPES.porco.sellMax-ANIMAL_TYPES.porco.sellMin));
+    state.cash += val; a.pigs.splice(idx,1); a.count--;
+    addLog("Porco vendido por " + fmtMoney(val) + "."); afterAction();
+  }
+  function sellProduct(product){
+    var qty = state.warehouse[product]; if (qty <= 0) return;
+    var val = Math.round(qty * currentPrice(product));
+    state.cash += val; state.warehouse[product] = 0;
+    addLog("Venda de " + qty + " un. de " + PRODUCT_NAMES[product] + " por " + fmtMoney(val) + "."); afterAction();
+  }
+  function spawnGroundItem(kind, wx, wy, qty){
+    var ang = Math.random()*Math.PI*2, dist = 0.35+Math.random()*0.35;
+    state.groundItems.push({ id:"drop"+Date.now()+Math.random().toString(36).slice(2), kind:kind, wx: wx+Math.cos(ang)*dist, wy: wy+Math.sin(ang)*dist, qty: qty });
+  }
+  function gatherResource(id){
+    var node = state.resourceNodes.find(function(n){ return n.id===id; });
+    if (!node || node.respawnDay!=null || node.health<=0) return;
+    node.health--;
+    if (node.kind==="tree"){
+      var qty = 1+Math.floor(Math.random()*2);
+      spawnGroundItem("madeira", node.wx, node.wy, qty);
+      addLog("A árvore soltou madeira no chão ("+node.health+"/"+node.maxHealth+" golpes restantes) — vá até lá pra pegar.");
+    } else {
+      var qty2 = 1+Math.floor(Math.random()*3);
+      spawnGroundItem("pedra", node.wx, node.wy, qty2);
+      var msg = "O depósito soltou pedra no chão";
+      if (Math.random()<0.2){ spawnGroundItem("minerio", node.wx, node.wy, 1); msg += " e um pedaço de minério"; }
+      addLog(msg+" — vá até lá pra pegar.");
+    }
+    if (node.health<=0){
+      node.respawnDay = state.day + (node.kind==="tree" ? 4 : 5);
+      addLog(node.kind==="tree" ? "A árvore caiu. Uma nova vai crescer em alguns dias." : "O veio de pedra se esgotou. Vai se refazer em alguns dias.");
+    }
+    afterAction();
+  }
+  function checkPickups(){
+    if (!state.groundItems.length) return;
+    var pr = 16; var picked = false;
+    var names = { madeira:"madeira", pedra:"pedra", minerio:"minério", ovos:"ovos", leite:"leite" };
+    var warehouseKinds = { ovos:true, leite:true };
+    for (var i=state.groundItems.length-1; i>=0; i--){
+      var it = state.groundItems[i];
+      var dx = it.wx*TILE-runtime.px, dy = it.wy*TILE-runtime.py;
+      if (Math.sqrt(dx*dx+dy*dy) < pr){
+        if (warehouseKinds[it.kind]) state.warehouse[it.kind] += it.qty;
+        else state.inventory[it.kind] += it.qty;
+        addLog("Pegou "+it.qty+" de "+names[it.kind]+".");
+        state.groundItems.splice(i,1);
+        picked = true;
+      }
+    }
+    if (picked) afterAction();
+  }
+  function buyMaterial(kind, qty, cost){
+    if (state.cash < cost) return;
+    state.cash -= cost; state.inventory[kind] += qty;
+    addLog("Comprou "+qty+" de "+MATERIAL_NAMES[kind].toLowerCase()+" com Seu Tião por "+fmtMoney(cost)+".");
+    afterAction();
+  }
+  function buyWeapon(){
+    if (state.hasWeapon || state.cash < WEAPON_COST) return;
+    state.cash -= WEAPON_COST; state.hasWeapon = true;
+    addLog("Comprou uma espingarda com Seu Tião por "+fmtMoney(WEAPON_COST)+". Agora dá pra caçar o lobo antes que ele ataque o galinheiro.", true);
+    afterAction();
+  }
+  function shootWolf(){
+    if (!state.wolf || !state.hasWeapon) return;
+    state.wolf = null;
+    addLog("Você atirou e afugentou o lobo! O galinheiro está seguro por enquanto.", true);
+    afterAction();
+  }
+  function buildCeleiro(){
+    if (state.built.celeiro) return;
+    var cost = { madeira:30, pedra:15 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira; state.inventory.pedra -= cost.pedra;
+    state.built.celeiro = true;
+    Object.keys(state.animals).forEach(function(t){ state.animals[t].max += 2; });
+    addLog("Celeiro construído! Todos os currais ganharam +2 vagas.");
+    afterAction();
+  }
+  function buildCasaReformada(){
+    if (state.built.casaReformada) return;
+    var cost = { madeira:50, pedra:25, minerio:10 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira; state.inventory.pedra -= cost.pedra; state.inventory.minerio -= cost.minerio;
+    state.built.casaReformada = true;
+    addLog("Casebre reformado em uma casa de verdade! Desbravar terrenos agora custa 30% menos.");
+    afterAction();
+  }
+  function buildPoco(){
+    if (state.built.poco) return;
+    var cost = { madeira:20, pedra:15 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira; state.inventory.pedra -= cost.pedra;
+    state.built.poco = true;
+    addLog("Poço construído! Agora a lavoura resiste melhor a dias de seca, e dá pra tirar água pros animais.");
+    afterAction();
+  }
+  function collectWater(){
+    if (!state.built.poco) return;
+    if (state.wellLastCollectDay === state.day) return;
+    var qty = 10 + Math.floor(Math.random()*6);
+    state.inventory.agua += qty;
+    state.wellLastCollectDay = state.day;
+    addLog("Coletou " + qty + " de água no poço.");
+    afterAction();
+  }
+  function waterAll(type){
+    var a = state.animals[type];
+    if (a.count<=0 || state.inventory.agua < a.count) return;
+    state.inventory.agua -= a.count;
+    a.thirst = 0;
+    addLog("Deu água pra " + a.count + " " + ANIMAL_TYPES[type].name.toLowerCase() + "(s).");
+    afterAction();
+  }
+  function buildEspantalho(){
+    if (state.built.espantalho) return;
+    var cost = { madeira:15 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira;
+    state.built.espantalho = true;
+    addLog("Espantalho construído! Agora as pragas não fazem mais efeito na lavoura.");
+    afterAction();
+  }
+  function buildSilo(){
+    if (state.built.silo) return;
+    var cost = { madeira:40, pedra:20 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira; state.inventory.pedra -= cost.pedra;
+    state.built.silo = true;
+    addLog("Silo de grãos construído! Agora todo grão vende 8% mais caro.");
+    afterAction();
+  }
+  function buildMoinho(){
+    if (state.built.moinho) return;
+    var cost = { madeira:35, pedra:10, minerio:5 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira; state.inventory.pedra -= cost.pedra; state.inventory.minerio -= cost.minerio;
+    state.built.moinho = true;
+    addLog("Moinho construído! Agora toda colheita rende 10% a mais.");
+    afterAction();
+  }
+  function cropGrowDays(cropKey){
+    var base = CROPS[cropKey].growDays;
+    return Math.max(1, base - (state.built.estufa ? 1 : 0));
+  }
+  function buildEstufa(){
+    if (state.built.estufa) return;
+    var cost = { madeira:45, pedra:15, minerio:5 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira; state.inventory.pedra -= cost.pedra; state.inventory.minerio -= cost.minerio;
+    state.built.estufa = true;
+    addLog("Estufa construída! Toda plantação agora cresce 1 dia mais rápido.");
+    afterAction();
+  }
+  function buildRacao(){
+    if (state.built.racao) return;
+    var cost = { madeira:30, pedra:20, minerio:8 }; if (!hasMaterials(cost)) return;
+    state.inventory.madeira -= cost.madeira; state.inventory.pedra -= cost.pedra; state.inventory.minerio -= cost.minerio;
+    state.built.racao = true;
+    addLog("Depósito de ração construído! Alimentar os animais agora custa 20% menos.");
+    afterAction();
+  }
+  function advanceDay(){
+    ["galinha","vaca"].forEach(function(type){
+      var a = state.animals[type]; var def = ANIMAL_TYPES[type]; var produced = 0;
+      for (var i=0;i<a.fedToday;i++) produced += Math.round(def.yMin + Math.random()*(def.yMax-def.yMin));
+      if (produced>0){
+        var pen = ZONES.find(function(zz){ return zz.kind==="pen" && zz.animalType===type; });
+        var gwx = pen.gx + pen.w/2 + (Math.random()-0.5)*1.2;
+        var gwy = pen.gy + pen.h + 0.4 + Math.random()*0.5;
+        spawnGroundItem(def.product, gwx, gwy, produced);
+        addLog(def.name+"(s) produziram: +"+produced+" de "+PRODUCT_NAMES[def.product].toLowerCase()+" — apareceu no chão do lado do cercado.");
+      }
+      if (a.count>0 && a.fedToday < a.count){
+        a.missStreak++;
+        addLog((a.count-a.fedToday) + " " + def.name.toLowerCase() + "(s) sem ração hoje.", false);
+      } else { a.missStreak = 0; }
+      a.thirst = (a.thirst||0) + 1;
+      if (a.thirst >= 3 && a.count>0){
+        a.missStreak++;
+        addLog(def.name+"(s) com sede há "+a.thirst+" dias — leve água do poço pra eles.", false);
+      }
+      var fleeThreshold = 3 + penLevel(type);
+      if (a.missStreak >= fleeThreshold && a.count>0){
+        a.count--; a.missStreak = 0;
+        addLog("Um(a) " + def.name.toLowerCase() + " fugiu por falta de cuidado.", false);
+      }
+      a.fedToday = 0;
+    });
+    var porcoA = state.animals.porco;
+    if (porcoA.count>0 && porcoA.fedToday < porcoA.count){
+      porcoA.missStreak++;
+      addLog((porcoA.count-porcoA.fedToday) + " porco(s) sem ração hoje.", false);
+    } else { porcoA.missStreak = 0; }
+    porcoA.thirst = (porcoA.thirst||0) + 1;
+    if (porcoA.thirst >= 3 && porcoA.count>0){
+      porcoA.missStreak++;
+      addLog("Porco(s) com sede há "+porcoA.thirst+" dias — leve água do poço pra eles.", false);
+    }
+    if (porcoA.missStreak >= (3 + penLevel("porco")) && porcoA.count>0){
+      porcoA.pigs.pop(); porcoA.count--; porcoA.missStreak=0;
+      addLog("Um porco fugiu por falta de cuidado.", false);
+    }
+    porcoA.fedToday = 0;
+
+    state.prevPriceMult = JSON.parse(JSON.stringify(state.priceMult));
+    Object.keys(state.priceMult).forEach(function(p){ state.priceMult[p] = 0.85 + Math.random()*0.3; });
+
+    var wPool = WEATHER.map(function(w){
+      if (w.key==="seca" && state.built.poco) return { key:w.key, bonus:1.0, w:w.w, text:"Seca chegou, mas o poço manteve a lavoura irrigada — sem prejuízo." };
+      if (w.key==="praga" && state.built.espantalho) return { key:w.key, bonus:1.0, w:w.w, text:"Pragas apareceram, mas o espantalho afugentou tudo — sem prejuízo." };
+      return w;
+    });
+    var w = weightedPick(wPool);
+    state.yieldBonus = w.bonus;
+    addLog(w.text);
+
+    state.day++;
+
+    if (state.day % WOLF_INTERVAL_DAYS === 0){
+      if (state.wolf && state.animals.galinha.count > 0){
+        state.animals.galinha.count--;
+        addLog("Você não caçou o lobo a tempo — ele comeu 1 galinha durante a noite.", false);
+      }
+      state.wolf = null;
+      if (state.animals.galinha.count > 0){
+        if (state.hasWeapon){
+          var galinhaPen = ZONES.find(function(zz){ return zz.kind==="pen" && zz.animalType==="galinha"; });
+          state.wolf = { wx: galinhaPen.gx + galinhaPen.w/2, wy: galinhaPen.gy + galinhaPen.h + 0.6 };
+          addLog("Um lobo apareceu perto do galinheiro! Você está armado — vá até lá e atire nele antes do próximo dia, ou ele ataca.", true);
+        } else {
+          state.animals.galinha.count--;
+          addLog("Um lobo atacou o galinheiro durante a noite e comeu 1 galinha — você estava desprevinido. Compre uma espingarda com Seu Tião pra se proteger.", false);
+        }
+      }
+    }
+
+    state.animals.porco.pigs.forEach(function(pig){
+      var grown = state.day - pig.boughtDay;
+      if (grown === ANIMAL_TYPES.porco.growDays) addLog("Um porco engordou e está pronto pra vender!", true);
+    });
+
+    var respawned = false;
+    state.resourceNodes.forEach(function(n){
+      if (n.respawnDay!=null && state.day>=n.respawnDay){ n.health=n.maxHealth; n.respawnDay=null; respawned=true; }
+    });
+    if (respawned) addLog("Novos recursos apareceram na propriedade.");
+
+    if (state.day % 3 === 0) addLog(TIPS[Math.floor(Math.random()*TIPS.length)], true);
+
+    if (typeof runtime !== "undefined") runtime.dayProgress = 0;
+    afterAction();
+  }
+
+  function afterAction(){ saveState(); render(); }
+
+  // ---- side zone panel ----
+  function zoneField(i){
+    var p = state.plots[i];
+    var html = '';
+    if (p.locked){
+      var cost = plotUnlockCost(i);
+      html += '<div class="zone-title">Talhão ' + (i+1) + ' (bloqueado)</div>' +
+        '<div class="zone-meta">terreno ainda não desbravado</div>' +
+        '<div class="zone-actions"><button data-act="unlock" data-i="'+i+'" '+(state.cash<cost?'disabled':'')+'>Desbravar — '+fmtMoney(cost)+'</button></div>';
+    } else if (!p.crop){
+      html += '<div class="zone-title">Talhão ' + (i+1) + '</div><div class="zone-meta">livre — o que plantar?</div><div class="zone-actions">';
+      Object.keys(CROPS).forEach(function(k){
+        var d = CROPS[k];
+        html += '<button data-act="plant" data-i="'+i+'" data-crop="'+k+'" '+(state.cash<d.seedCost?'disabled':'')+'>'+d.name+' — '+fmtMoney(d.seedCost)+' ('+cropGrowDays(k)+'d)</button>';
+      });
+      html += '</div>';
+    } else {
+      var def = CROPS[p.crop]; var gDays = cropGrowDays(p.crop); var grown = state.day - p.plantedDay; var ready = grown >= gDays;
+      var pct = Math.min(100, Math.round(grown/gDays*100));
+      html += '<div class="zone-title">Talhão ' + (i+1) + ' — ' + def.name + '</div>';
+      if (ready){
+        html += '<div class="zone-meta">pronto para colher</div><div class="zone-actions"><button class="primary" data-act="harvest" data-i="'+i+'">Colher (~'+def.yMin+'–'+def.yMax+')</button></div>';
+      } else {
+        html += '<div class="zone-meta">'+grown+'/'+gDays+' dias</div><div class="zone-bar"><i style="width:'+pct+'%"></i></div><div class="zone-meta">volte quando estiver pronto</div>';
+      }
+    }
+    return html;
+  }
+  function zonePen(type){
+    var def = ANIMAL_TYPES[type]; var a = state.animals[type];
+    var level = penLevel(type);
+    var atMaxLevel = level+1 >= PEN_MAX_LEVEL;
+    var expandCost = penExpandCost(type);
+    var html = '<div class="zone-title">'+def.name+' — Nível '+(level+1)+'/'+PEN_MAX_LEVEL+' <span style="font-weight:400">('+a.count+'/'+a.max+')</span></div>';
+    html += '<div class="zone-meta">' + (a.count-a.fedToday>0 ? '<span class="warn">'+(a.count-a.fedToday)+' sem ração</span>' : (a.count>0?'todos alimentados hoje':'nenhum animal aqui ainda')) + '</div>';
+    if (def.product){
+      var onGround = state.groundItems.filter(function(g){ return g.kind===def.product; }).reduce(function(s,g){ return s+g.qty; }, 0);
+      html += '<div class="zone-meta">' + (onGround>0 ? '<span style="color:var(--gold);font-weight:700;">'+onGround+' de '+PRODUCT_NAMES[def.product].toLowerCase()+' no chão do lado do cercado — vá pegar</span>' : 'nada no chão ainda') + '</div>';
+    }
+    if (state.built.poco){
+      var thirst = a.thirst||0;
+      html += '<div class="zone-meta">' + (thirst>=3 ? '<span class="warn">com sede há '+thirst+' dias — dê água!</span>' : 'sede: '+thirst+'/3 dias') + '</div>';
+    }
+    html += '<div class="zone-actions">' +
+      '<button data-act="feed" data-type="'+type+'" '+(a.count-a.fedToday<=0?'disabled':'')+'>Dar ração ('+Math.round(def.feedCost*(state.built.racao?0.8:1))+'/un.)</button>' +
+      (state.built.poco ? '<button data-act="water" data-type="'+type+'" '+(a.count<=0||state.inventory.agua<a.count?'disabled':'')+'>Dar água ('+a.count+' água)</button>' : '') +
+      '<button data-act="buy" data-type="'+type+'" '+(a.count>=a.max||state.cash<def.buyCost?'disabled':'')+'>Comprar — '+fmtMoney(def.buyCost)+'</button>' +
+      '<button class="ghost" data-act="expand" data-type="'+type+'" '+(atMaxLevel||state.cash<expandCost?'disabled':'')+'>'+(atMaxLevel?'Nível máximo atingido':'Subir p/ nível '+(level+2)+' — '+fmtMoney(expandCost))+'</button>' +
+    '</div>';
+    if (type==="porco" && a.pigs.length){
+      html += '<div class="zone-sub">';
+      a.pigs.forEach(function(pig, idx){
+        var grown = state.day - pig.boughtDay; var ready = grown >= def.growDays;
+        var pct = Math.min(100, Math.round(grown/def.growDays*100));
+        html += '<div class="zone-meta">Porco #'+(idx+1)+' — '+(ready?'<span style="color:var(--gold);font-weight:700;">pronto pra vender (gordo!)</span>':('engorda: '+pct+'% ('+grown+'/'+def.growDays+' dias)'))+'</div>';
+        if (!ready) html += '<div class="zone-bar"><i style="width:'+pct+'%"></i></div>';
+        if (ready) html += '<div class="zone-actions"><button class="primary" data-act="sellpig" data-idx="'+idx+'">Vender (~'+def.sellMin+'–'+def.sellMax+')</button></div>';
+      });
+      html += '</div>';
+    }
+    return html;
+  }
+  function zoneMarket(){
+    var html = '<div class="zone-title">Mercado</div><table class="market"><thead><tr><th>Produto</th><th class="num">Preço</th><th class="num">Estq.</th><th></th></tr></thead><tbody>';
+    Object.keys(PRODUCT_NAMES).forEach(function(p){
+      var price = currentPrice(p);
+      var isCropP = CROPS.hasOwnProperty(p);
+      var prevBase = isCropP ? CROPS[p].base : ANIMAL_TYPES[p==="ovos"?"galinha":"vaca"].base;
+      var prevPrice = prevBase * state.prevPriceMult[p] * (isCropP && state.built.silo ? 1.08 : 1);
+      var dir = price>prevPrice ? "price-up" : (price<prevPrice ? "price-down":"");
+      var arrow = price>prevPrice ? "▲" : (price<prevPrice ? "▼" : "·");
+      var qty = state.warehouse[p];
+      html += '<tr><td>'+PRODUCT_NAMES[p]+'</td><td class="num '+dir+'">'+arrow+' R$'+price.toFixed(2)+'</td><td class="num">'+qty+'</td>' +
+        '<td><button data-act="sell" data-product="'+p+'" '+(qty<=0?'disabled':'')+'>Vender</button></td></tr>';
+    });
+    html += '</tbody></table>';
+    return html;
+  }
+  function zoneHome(){
+    var celeiroCost = { madeira:30, pedra:15 }, casaCost = { madeira:50, pedra:25, minerio:10 };
+    var pocoCost = { madeira:20, pedra:15 }, espantalhoCost = { madeira:15 };
+    var siloCost = { madeira:40, pedra:20 }, moinhoCost = { madeira:35, pedra:10, minerio:5 };
+    var estufaCost = { madeira:45, pedra:15, minerio:5 }, racaoCost = { madeira:30, pedra:20, minerio:8 };
+    var html = '<div class="zone-title">Casebre — Construções</div><div class="zone-meta">Sua casa e sua terra. Use madeira, pedra e minério pra evoluir a propriedade.</div>';
+    html += '<div class="zone-actions">';
+    html += '<button data-act="build-celeiro" '+(state.built.celeiro||!hasMaterials(celeiroCost)?'disabled':'')+'>'+(state.built.celeiro?'Celeiro construído ✓':'Construir celeiro — 30 madeira, 15 pedra')+'</button>';
+    html += '<button data-act="build-casa" '+(state.built.casaReformada||!hasMaterials(casaCost)?'disabled':'')+'>'+(state.built.casaReformada?'Casa reformada ✓':'Reformar casebre → Casa — 50 madeira, 25 pedra, 10 minério')+'</button>';
+    html += '<button data-act="build-poco" '+(state.built.poco||!hasMaterials(pocoCost)?'disabled':'')+'>'+(state.built.poco?'Poço construído ✓':'Construir poço — 20 madeira, 15 pedra')+'</button>';
+    html += '<button data-act="build-espantalho" '+(state.built.espantalho||!hasMaterials(espantalhoCost)?'disabled':'')+'>'+(state.built.espantalho?'Espantalho construído ✓':'Construir espantalho — 15 madeira')+'</button>';
+    html += '<button data-act="build-silo" '+(state.built.silo||!hasMaterials(siloCost)?'disabled':'')+'>'+(state.built.silo?'Silo de grãos construído ✓':'Construir silo de grãos — 40 madeira, 20 pedra')+'</button>';
+    html += '<button data-act="build-moinho" '+(state.built.moinho||!hasMaterials(moinhoCost)?'disabled':'')+'>'+(state.built.moinho?'Moinho construído ✓':'Construir moinho — 35 madeira, 10 pedra, 5 minério')+'</button>';
+    html += '<button data-act="build-estufa" '+(state.built.estufa||!hasMaterials(estufaCost)?'disabled':'')+'>'+(state.built.estufa?'Estufa construída ✓':'Construir estufa — 45 madeira, 15 pedra, 5 minério')+'</button>';
+    html += '<button data-act="build-racao" '+(state.built.racao||!hasMaterials(racaoCost)?'disabled':'')+'>'+(state.built.racao?'Depósito de ração construído ✓':'Construir depósito de ração — 30 madeira, 20 pedra, 8 minério')+'</button>';
+    html += '</div>';
+    html += '<div class="zone-meta" style="margin-top:8px;">Celeiro: +2 vagas em currais. Casa: -30% no custo de desbravar. Poço: protege da seca. Espantalho: protege da praga. Silo: +8% no preço de venda dos grãos. Moinho: +10% na colheita. Estufa: plantação cresce 1 dia mais rápido. Depósito de ração: -20% no custo de alimentar.</div>';
+    return html;
+  }
+  function zoneNpc(){
+    var html = '<div class="zone-title">Seu Tião — Mercador</div>' +
+      '<div class="zone-meta">"Precisando de material pra construir? Eu vendo, sem precisar cortar nem garimpar."</div>' +
+      '<div class="zone-actions">';
+    NPC_OFFERS.forEach(function(o){
+      html += '<button data-act="buy-material" data-kind="'+o.kind+'" data-qty="'+o.qty+'" data-cost="'+o.cost+'" '+(state.cash<o.cost?'disabled':'')+'>'+o.qty+' '+MATERIAL_NAMES[o.kind]+' — '+fmtMoney(o.cost)+'</button>';
+    });
+    html += '</div>';
+    html += '<div class="zone-meta" style="margin-top:8px;">"Um lobo anda rondando o galinheiro a cada '+WOLF_INTERVAL_DAYS+' dias. Compre uma espingarda e fique preparado."</div>';
+    html += '<div class="zone-actions">';
+    html += '<button data-act="buy-weapon" '+(state.hasWeapon||state.cash<WEAPON_COST?'disabled':'')+'>'+(state.hasWeapon?'Espingarda ✓ (você já tem)':'Comprar espingarda — '+fmtMoney(WEAPON_COST))+'</button>';
+    html += '</div>';
+    return html;
+  }
+  function zoneWolf(){
+    var html = '<div class="zone-title">Lobo à espreita!</div>';
+    html += '<div class="zone-meta warn">Ele está de olho no galinheiro. Atire nele antes que o dia vire, ou uma galinha vai ser comida.</div>';
+    html += '<div class="zone-actions"><button class="primary" data-act="shoot-wolf">Atirar (Espingarda)</button></div>';
+    return html;
+  }
+  function zoneResource(node){
+    var isTree = node.kind==="tree";
+    var html = '<div class="zone-title">'+(isTree?'Árvore':'Depósito de pedra')+'</div>';
+    html += '<div class="zone-meta">Resistência: '+node.health+'/'+node.maxHealth+'</div>';
+    html += '<div class="zone-actions"><button class="primary" data-act="gather" data-node="'+node.id+'">'+(isTree?'Cortar':'Garimpar')+'</button></div>';
+    return html;
+  }
+  function zonePoco(){
+    var canCollect = state.wellLastCollectDay !== state.day;
+    var html = '<div class="zone-title">Poço</div>';
+    html += '<div class="zone-meta">Fonte de água pra manter os animais hidratados. Leve água pros currais a cada 3 dias, senão a produção sofre.</div>';
+    html += '<div class="zone-meta">Você tem '+state.inventory.agua+' de água guardada.</div>';
+    html += '<div class="zone-actions"><button class="primary" data-act="collect-water" '+(canCollect?'':'disabled')+'>'+(canCollect?'Coletar água':'Já coletou água hoje')+'</button></div>';
+    return html;
+  }
+
+  function renderZonePanel(){
+    var el = document.getElementById("zonePanel");
+    var heading = document.getElementById("zoneHeading");
+    var z = runtime.zone;
+    if (!z){
+      heading.textContent = "Aqui";
+      el.innerHTML = '<div class="zone-empty">Ande até um talhão, curral, o mercado, o casebre ou um recurso pra agir. <span class="hint">E = ação rápida no que estiver perto.</span></div>';
+      return;
+    }
+    if (z.kind==="field"){ heading.textContent = "Lavoura"; el.innerHTML = zoneField(z.plotIndex); }
+    else if (z.kind==="pen"){ heading.textContent = z.label; el.innerHTML = zonePen(z.animalType); }
+    else if (z.kind==="market"){ heading.textContent = "Mercado"; el.innerHTML = zoneMarket(); }
+    else if (z.kind==="home"){ heading.textContent = "Casebre"; el.innerHTML = zoneHome(); }
+    else if (z.kind==="npc"){ heading.textContent = z.label; el.innerHTML = zoneNpc(); }
+    else if (z.kind==="resource"){ heading.textContent = z.node.kind==="tree"?"Árvore":"Pedreira"; el.innerHTML = zoneResource(z.node); }
+    else if (z.kind==="poco"){ heading.textContent = "Poço"; el.innerHTML = zonePoco(); }
+    else if (z.kind==="wolf"){ heading.textContent = "Lobo!"; el.innerHTML = zoneWolf(); }
+  }
+
+  var BAG_ITEMS = [
+    { key:"madeira", label:"Madeira", get:function(){ return state.inventory.madeira; } },
+    { key:"pedra", label:"Pedra", get:function(){ return state.inventory.pedra; } },
+    { key:"minerio", label:"Minério", get:function(){ return state.inventory.minerio; } },
+    { key:"agua", label:"Água", get:function(){ return state.inventory.agua; } },
+    { key:"milho", label:"Milho", get:function(){ return state.warehouse.milho; } },
+    { key:"soja", label:"Soja", get:function(){ return state.warehouse.soja; } },
+    { key:"trigo", label:"Trigo", get:function(){ return state.warehouse.trigo; } },
+    { key:"arroz", label:"Arroz", get:function(){ return state.warehouse.arroz; } },
+    { key:"feijao", label:"Feijão", get:function(){ return state.warehouse.feijao; } },
+    { key:"cafe", label:"Café", get:function(){ return state.warehouse.cafe; } },
+    { key:"ovos", label:"Ovos", get:function(){ return state.warehouse.ovos; } },
+    { key:"leite", label:"Leite", get:function(){ return state.warehouse.leite; } }
+  ];
+  function renderBag(){
+    var el = document.getElementById("bagGrid"); if (!el) return;
+    el.innerHTML = BAG_ITEMS.map(function(it){
+      var qty = it.get();
+      return '<div class="bag-slot'+(qty<=0?' empty':'')+'"><div class="icon">'+BAG_ICONS[it.key]+'</div><div class="qty">'+qty+'</div><div class="label">'+it.label+'</div></div>';
+    }).join("");
+  }
+
+  function renderInventory(){
+    var el = document.getElementById("invStrip"); if (!el) return;
+    el.innerHTML =
+      '<div class="inv-pill">Madeira: '+state.inventory.madeira+'</div>' +
+      '<div class="inv-pill">Pedra: '+state.inventory.pedra+'</div>' +
+      '<div class="inv-pill">Minério: '+state.inventory.minerio+'</div>';
+  }
+
+  function render(){
+    if (!state) return;
+    document.getElementById("statDay").textContent = state.day;
+    document.getElementById("statCash").textContent = fmtMoney(state.cash);
+    document.getElementById("statNet").textContent = fmtMoney(Math.round(netWorth()));
+    document.getElementById("subtitle").textContent = state.player.name + " e " + state.player.mascotName + " — livro de gestão da fazenda";
+    renderInventory();
+    renderBag();
+    renderZonePanel();
+    renderLog();
+  }
+
+  function renderLog(){
+    var el = document.getElementById("logContainer");
+    el.innerHTML = state.log.map(function(l){
+      return '<div class="'+(l.tip?'tip':'')+'"><span class="day">Dia ' + l.day + '</span> — ' + l.text + '</div>';
+    }).join("");
+  }
+
+  document.getElementById("side").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-act]"); if (!b) return;
+    var act = b.dataset.act;
+    if (act==="unlock") unlockPlot(+b.dataset.i);
+    else if (act==="plant") plant(+b.dataset.i, b.dataset.crop);
+    else if (act==="harvest") harvest(+b.dataset.i);
+    else if (act==="feed") feedAll(b.dataset.type);
+    else if (act==="buy") buyAnimal(b.dataset.type);
+    else if (act==="expand") expandPen(b.dataset.type);
+    else if (act==="sellpig") sellPig(+b.dataset.idx);
+    else if (act==="sell") sellProduct(b.dataset.product);
+    else if (act==="gather") gatherResource(b.dataset.node);
+    else if (act==="build-celeiro") buildCeleiro();
+    else if (act==="build-casa") buildCasaReformada();
+    else if (act==="buy-material") buyMaterial(b.dataset.kind, +b.dataset.qty, +b.dataset.cost);
+    else if (act==="build-poco") buildPoco();
+    else if (act==="build-espantalho") buildEspantalho();
+    else if (act==="build-silo") buildSilo();
+    else if (act==="build-moinho") buildMoinho();
+    else if (act==="collect-water") collectWater();
+    else if (act==="water") waterAll(b.dataset.type);
+    else if (act==="build-estufa") buildEstufa();
+    else if (act==="build-racao") buildRacao();
+    else if (act==="buy-weapon") buyWeapon();
+    else if (act==="shoot-wolf") shootWolf();
+  });
+
+  document.getElementById("advanceBtn").addEventListener("click", function(){ if (gameActive) advanceDay(); });
+  document.getElementById("cheatBtn").addEventListener("click", function(){
+    if (!gameActive) return;
+    state.cash += 1000;
+    addLog("Dinheiro extra adicionado pra teste: +R$1.000.");
+    afterAction();
+  });
+  document.getElementById("cheatProduceBtn").addEventListener("click", function(){
+    if (!gameActive) return;
+    var galinhaPen = ZONES.find(function(z){ return z.kind==="pen" && z.animalType==="galinha"; });
+    var vacaPen = ZONES.find(function(z){ return z.kind==="pen" && z.animalType==="vaca"; });
+    spawnGroundItem("ovos", galinhaPen.gx+galinhaPen.w/2, galinhaPen.gy+galinhaPen.h+0.4, 12);
+    spawnGroundItem("leite", vacaPen.gx+vacaPen.w/2, vacaPen.gy+vacaPen.h+0.4, 10);
+    addLog("Teste: ovos e leite colocados no chão perto dos currais — vá até lá pra ver e pegar.");
+    afterAction();
+  });
+  document.getElementById("cheatMaterialsBtn").addEventListener("click", function(){
+    if (!gameActive) return;
+    state.inventory.madeira += 100;
+    state.inventory.pedra += 100;
+    state.inventory.minerio += 50;
+    state.inventory.agua += 30;
+    addLog("Materiais extras adicionados pra teste: +100 madeira, +100 pedra, +50 minério, +30 água.");
+    afterAction();
+  });
+  document.getElementById("speedGroup").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-speed]"); if (!b) return;
+    runtime.daySpeed = +b.dataset.speed;
+    document.querySelectorAll("#speedGroup .speedbtn").forEach(function(x){ x.classList.remove("sel"); });
+    b.classList.add("sel");
+  });
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    if (!gameActive) return;
+    if (!confirm("Reiniciar o jogo do zero? O progresso atual será perdido.")) return;
+    var keepPlayer = state.player;
+    state = freshState(); state.player = keepPlayer;
+    afterAction();
+  });
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    var root = document.documentElement;
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("fazenda-theme", next); } catch(e){}
+  });
+  (function initTheme(){
+    try { var saved = localStorage.getItem("fazenda-theme"); if (saved) document.documentElement.setAttribute("data-theme", saved); } catch(e){}
+  })();
+
+  // ---- hamburger menu (mobile) ----
+  var menuDrawer = document.getElementById("menuDrawer");
+  var menuBackdrop = document.getElementById("menuBackdrop");
+  function closeMenu(){ menuDrawer.classList.remove("open"); menuBackdrop.classList.remove("open"); }
+  function openMenu(){ menuDrawer.classList.add("open"); menuBackdrop.classList.add("open"); }
+  document.getElementById("menuToggle").addEventListener("click", openMenu);
+  document.getElementById("menuClose").addEventListener("click", closeMenu);
+  menuBackdrop.addEventListener("click", closeMenu);
+  menuDrawer.addEventListener("click", function(e){
+    if (e.target.closest("button") && e.target.id!=="menuClose") closeMenu();
+  });
+
+  // ---- character customization ----
+  var custPop = document.getElementById("custPop");
+  var bagPop = document.getElementById("bagPop");
+  document.getElementById("custToggle").addEventListener("click", function(){ bagPop.classList.remove("open"); custPop.classList.toggle("open"); });
+  document.getElementById("bagToggle").addEventListener("click", function(){ custPop.classList.remove("open"); bagPop.classList.toggle("open"); renderBag(); });
+  document.getElementById("custClose").addEventListener("click", function(){ custPop.classList.remove("open"); });
+  document.getElementById("bagClose").addEventListener("click", function(){ bagPop.classList.remove("open"); });
+  document.addEventListener("click", function(e){
+    if (!custPop.contains(e.target) && e.target.id!=="custToggle") custPop.classList.remove("open");
+    if (!bagPop.contains(e.target) && e.target.id!=="bagToggle") bagPop.classList.remove("open");
+  });
+  var nameInput = document.getElementById("nameInput");
+  nameInput.addEventListener("input", function(){
+    state.player.name = nameInput.value.trim() || "Fazendeiro";
+    render(); saveState();
+  });
+  var mascotNameInput = document.getElementById("mascotNameInput");
+  mascotNameInput.addEventListener("input", function(){
+    state.player.mascotName = mascotNameInput.value.trim() || "Rex";
+    render(); saveState();
+  });
+  function renderSwatches(){
+    document.getElementById("swatches").innerHTML = PLAYER_COLORS.map(function(c){
+      return '<button type="button" class="swatch'+(state.player.color===c?' sel':'')+'" data-color="'+c+'" style="background:'+c+'"></button>';
+    }).join("");
+  }
+  function renderMascotSwatches(){
+    document.getElementById("mascotSwatches").innerHTML = PLAYER_COLORS.map(function(c){
+      return '<button type="button" class="swatch'+(state.player.mascotColor===c?' sel':'')+'" data-color="'+c+'" style="background:'+c+'"></button>';
+    }).join("");
+  }
+  document.getElementById("swatches").addEventListener("click", function(e){
+    var b = e.target.closest(".swatch"); if (!b) return;
+    state.player.color = b.dataset.color; renderSwatches(); saveState();
+  });
+  document.getElementById("mascotSwatches").addEventListener("click", function(e){
+    var b = e.target.closest(".swatch"); if (!b) return;
+    state.player.mascotColor = b.dataset.color; renderMascotSwatches(); saveState();
+  });
+
+  // ---- top-down world (bird's-eye view, like classic farm sims) ----
+  var canvas = document.getElementById("gameCanvas");
+  var ctx = canvas.getContext("2d");
+  var dayProgressBar = document.getElementById("dayProgressBar");
+  var TILE = 40;
+  var MAP_W = COLS*TILE, MAP_H = ROWS*TILE;
+  var OFFSET_X = Math.round((canvas.width-MAP_W)/2);
+  var OFFSET_Y = Math.round((canvas.height-MAP_H)/2);
+  var MASCOT_LAG = 40;
+
+  var DAY_DURATION_MS = 240000;
+  var runtime = {
+    keys:{}, zone:null, zoneKey:null, target:null,
+    px: 5.5*TILE, py: 3*TILE, facing:"down", moving:false,
+    t:0, lastTs:0, dt:0, mascotTrail:[],
+    dayProgress: 0, daySpeed: 1
+  };
+
+  function shadow(cx, cy, rw, rh){
+    ctx.fillStyle = "rgba(15,20,10,0.28)";
+    ctx.beginPath(); ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI*2); ctx.fill();
+  }
+  function zoneRectWorld(z){ return { x:z.gx*TILE, y:z.gy*TILE, w:z.w*TILE, h:z.h*TILE }; }
+  function zoneAt(px,py){
+    for (var i=0;i<ZONES.length;i++){
+      var r = zoneRectWorld(ZONES[i]);
+      if (px>=r.x-8 && px<=r.x+r.w+8 && py>=r.y-8 && py<=r.y+r.h+8) return ZONES[i];
+    }
+    return null;
+  }
+  function findNearestResource(){
+    var best=null, bestDist=TILE*0.85;
+    state.resourceNodes.forEach(function(n){
+      if (n.respawnDay!=null || n.health<=0) return;
+      var dx=n.wx*TILE-runtime.px, dy=n.wy*TILE-runtime.py, d=Math.sqrt(dx*dx+dy*dy);
+      if (d<bestDist){ bestDist=d; best=n; }
+    });
+    return best;
+  }
+  var POCO_POS = { wx:1.5, wy:7.35 };
+  function computeZone(){
+    var res = findNearestResource();
+    if (res) return { key:"resource-"+res.id, kind:"resource", node:res };
+    if (state.wolf){
+      var dxwolf = state.wolf.wx*TILE-runtime.px, dywolf = state.wolf.wy*TILE-runtime.py;
+      if (Math.sqrt(dxwolf*dxwolf+dywolf*dywolf) < TILE*0.9) return { key:"wolf", kind:"wolf" };
+    }
+    if (state.built.poco){
+      var dxw = POCO_POS.wx*TILE-runtime.px, dyw = POCO_POS.wy*TILE-runtime.py;
+      if (Math.sqrt(dxw*dxw+dyw*dyw) < TILE*0.9) return { key:"poco", kind:"poco" };
+    }
+    return zoneAt(runtime.px, runtime.py);
+  }
+
+  function seededRnd(seed){ return function(){ seed = (seed*9301+49297)%233280; return seed/233280; }; }
+  var RESOURCE_TILES = TREE_POS.concat(ROCK_POS);
+  var DECORATIONS = (function(){
+    var list = []; var rnd = seededRnd(42);
+    for (var i=0;i<44;i++){
+      var gx = Math.floor(rnd()*COLS), gy = Math.floor(rnd()*ROWS);
+      var onZone = ZONES.some(function(z){ return gx>=z.gx-1 && gx<=z.gx+z.w && gy>=z.gy-1 && gy<=z.gy+z.h; });
+      var onResource = RESOURCE_TILES.some(function(p){ return Math.abs(p[0]-gx)<=1 && Math.abs(p[1]-gy)<=1; });
+      if (!onZone && !onResource) list.push({ x: gx*TILE+8+rnd()*(TILE-16), y: gy*TILE+8+rnd()*(TILE-16), r: 5+rnd()*5 });
+    }
+    return list;
+  })();
+  var GRASS_BLADES = (function(){
+    var list = []; var rnd = seededRnd(7);
+    for (var gy=0; gy<ROWS; gy++){
+      for (var gx=0; gx<COLS; gx++){
+        var n = 2 + Math.floor(rnd()*3);
+        for (var i=0;i<n;i++){
+          list.push({ x: gx*TILE + rnd()*TILE, y: gy*TILE + rnd()*TILE, len: 4+rnd()*6, tilt: (rnd()-0.5)*0.9, shade: rnd()>0.5 });
+        }
+      }
+    }
+    return list;
+  })();
+
+  function drawGrass(){
+    var grad = ctx.createLinearGradient(0,0,0,MAP_H);
+    grad.addColorStop(0, "#4a6a34"); grad.addColorStop(1, "#39501f");
+    ctx.fillStyle = grad; ctx.fillRect(0,0,MAP_W,MAP_H);
+    for (var gy=0; gy<ROWS; gy++){
+      for (var gx=0; gx<COLS; gx++){
+        if ((gx+gy)%2===0){ ctx.fillStyle = "rgba(255,255,255,0.03)"; ctx.fillRect(gx*TILE, gy*TILE, TILE, TILE); }
+      }
+    }
+    ctx.lineWidth = 1.4;
+    GRASS_BLADES.forEach(function(b){
+      ctx.strokeStyle = b.shade ? "rgba(90,125,55,0.6)" : "rgba(210,225,150,0.35)";
+      ctx.beginPath(); ctx.moveTo(b.x, b.y);
+      ctx.quadraticCurveTo(b.x+b.tilt*6, b.y-b.len*0.6, b.x+b.tilt*10, b.y-b.len);
+      ctx.stroke();
+    });
+    DECORATIONS.forEach(function(d){
+      shadow(d.x, d.y+d.r*0.5, d.r*1.1, d.r*0.4);
+      ctx.fillStyle = "#365420"; ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#4c7530"; ctx.beginPath(); ctx.arc(d.x-d.r*0.3, d.y-d.r*0.3, d.r*0.6, 0, Math.PI*2); ctx.fill();
+    });
+  }
+
+  function drawFence(r, level){
+    level = level || 0;
+    var postW = level>=2 ? 7 : 5;
+
+    ctx.fillStyle = "rgba(15,20,10,0.18)";
+    ctx.fillRect(r.x, r.y+r.h*0.35+2, r.w, 3);
+    ctx.fillRect(r.x, r.y+r.h*0.7+2, r.w, 3);
+
+    function rail(y, w, color){
+      ctx.strokeStyle = color; ctx.lineWidth = w;
+      ctx.beginPath(); ctx.moveTo(r.x, y); ctx.lineTo(r.x+r.w, y); ctx.stroke();
+      ctx.strokeStyle = "rgba(0,0,0,0.16)"; ctx.lineWidth = 0.8;
+      for (var gx=r.x+6; gx<r.x+r.w-6; gx+=14){
+        ctx.beginPath(); ctx.moveTo(gx, y-w/2+1); ctx.lineTo(gx+8, y-w/2+1); ctx.stroke();
+      }
+    }
+    rail(r.y+r.h*0.35, 3.4, "#8a6a3e");
+    rail(r.y+r.h*0.7, 3.4, "#7d5f38");
+    if (level>=1) rail(r.y+r.h*0.1, 2.8, "#a97f49");
+
+    var posts = Math.max(2, Math.round(r.w/22));
+    var gateIdx = Math.floor(posts/2);
+    for (var i=0;i<=posts;i++){
+      var px = r.x + (r.w/posts)*i;
+      if (i===gateIdx) continue;
+      var grad = ctx.createLinearGradient(px-postW/2,0,px+postW/2,0);
+      grad.addColorStop(0,"#6e5230"); grad.addColorStop(0.45,"#a97f49"); grad.addColorStop(0.55,"#8a6a3e"); grad.addColorStop(1,"#6e5230");
+      ctx.fillStyle = grad;
+      var topExt = level>=2?4:0;
+      ctx.fillRect(px-postW/2, r.y-topExt, postW, r.h+topExt);
+      ctx.fillStyle = "#5a4128";
+      ctx.beginPath(); ctx.ellipse(px, r.y-topExt, postW/2+0.6, 2, 0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.14)"; ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.moveTo(px-1, r.y+4-topExt); ctx.lineTo(px-1, r.y+r.h-6); ctx.stroke();
+    }
+
+    var gx0 = r.x + (r.w/posts)*gateIdx;
+    ctx.strokeStyle = "#6e5230"; ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(gx0-9, r.y+r.h*0.15); ctx.lineTo(gx0+9, r.y+r.h*0.15);
+    ctx.lineTo(gx0+9, r.y+r.h*0.85); ctx.lineTo(gx0-9, r.y+r.h*0.85); ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gx0-9, r.y+r.h*0.15); ctx.lineTo(gx0+9, r.y+r.h*0.85);
+    ctx.moveTo(gx0+9, r.y+r.h*0.15); ctx.lineTo(gx0-9, r.y+r.h*0.85); ctx.stroke();
+    ctx.fillStyle = "#3f2a18"; ctx.fillRect(gx0-2, r.y+r.h*0.46, 4, 6);
+
+    if (level>=3){
+      ctx.strokeStyle = "#5a4128"; ctx.lineWidth = 3;
+      var corners = [[r.x,r.y,1,1],[r.x+r.w,r.y,-1,1],[r.x,r.y+r.h,1,-1],[r.x+r.w,r.y+r.h,-1,-1]];
+      corners.forEach(function(c){
+        ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.lineTo(c[0]+11*c[2], c[1]+11*c[3]); ctx.stroke();
+      });
+    }
+  }
+
+  function drawCropGlyph(cx, cy, cropKey, pct, ready){
+    var def = CROPS[cropKey];
+    var h = 6 + pct*22;
+    if (ready){
+      var pulse = 2+Math.sin(runtime.t/260)*1.5;
+      ctx.beginPath(); ctx.ellipse(cx, cy+3, 15+pulse, 6+pulse*0.4, 0, 0, Math.PI*2);
+      ctx.strokeStyle = "rgba(230,190,90,0.5)"; ctx.lineWidth=2; ctx.stroke();
+    }
+    if (cropKey==="milho"){
+      ctx.strokeStyle = "#3f6a2a"; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(cx, cy+8); ctx.lineTo(cx, cy+8-h); ctx.stroke();
+      ctx.fillStyle = "#4d7a34";
+      [-1,1].forEach(function(side){
+        ctx.beginPath(); ctx.moveTo(cx, cy+2-h*0.5);
+        ctx.quadraticCurveTo(cx+side*(6+pct*8), cy-h*0.55, cx+side*(3+pct*4), cy+10-h*0.85);
+        ctx.quadraticCurveTo(cx+side*2, cy+4-h*0.5, cx, cy+2-h*0.5); ctx.fill();
+      });
+      if (ready){
+        ctx.fillStyle = def.color; ctx.beginPath(); ctx.ellipse(cx+3, cy+2-h*0.75, 3.4, 7, 0.3, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "#7a9a4a"; ctx.lineWidth=1; ctx.stroke();
+      }
+    } else if (cropKey==="soja"){
+      var leaves = 3+Math.round(pct*3);
+      for (var i=0;i<leaves;i++){
+        var ang = (i/leaves)*Math.PI*2 + 0.4;
+        var lx = cx+Math.cos(ang)*(4+pct*6), ly = cy+Math.sin(ang)*(3+pct*4)-pct*4;
+        ctx.fillStyle = def.color; ctx.beginPath(); ctx.ellipse(lx, ly, 3.6+pct*2.2, 2.6+pct*1.6, ang, 0, Math.PI*2); ctx.fill();
+      }
+      if (ready){
+        ctx.fillStyle = "#e8dfa8";
+        for (var j=0;j<3;j++){ ctx.beginPath(); ctx.ellipse(cx-4+j*4, cy-2-pct*4, 1.8, 3, 0.5, 0, Math.PI*2); ctx.fill(); }
+      }
+    } else if (cropKey==="arroz"){
+      ctx.strokeStyle = "#7a8a4e"; ctx.lineWidth = 1.8;
+      [-3,0,3].forEach(function(off,i){
+        var hh = h*(0.75+0.1*i);
+        ctx.beginPath(); ctx.moveTo(cx+off, cy+8); ctx.quadraticCurveTo(cx+off*1.4, cy+8-hh*0.7, cx+off*1.8, cy+8-hh); ctx.stroke();
+        var headColor = ready ? def.color : "#a8b878";
+        ctx.fillStyle = headColor;
+        ctx.beginPath(); ctx.ellipse(cx+off*1.8, cy+8-hh, 2.2, 4.2, 0.3*off, 0, Math.PI*2); ctx.fill();
+      });
+    } else if (cropKey==="feijao"){
+      ctx.strokeStyle = "#3f6a2a"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx, cy+8); ctx.lineTo(cx, cy+8-h); ctx.stroke();
+      var fLeaves = 3+Math.round(pct*2);
+      for (var fi=0; fi<fLeaves; fi++){
+        var fang = (fi/fLeaves)*Math.PI*2 + 0.6;
+        var flx = cx+Math.cos(fang)*(3+pct*5), fly = cy+2-h*0.5+Math.sin(fang)*(3+pct*3);
+        ctx.fillStyle = "#5c8a3d"; ctx.beginPath(); ctx.ellipse(flx, fly, 3+pct*1.5, 2.2+pct*1, fang, 0, Math.PI*2); ctx.fill();
+      }
+      if (ready){
+        ctx.fillStyle = def.color;
+        for (var fj=0; fj<3; fj++){ ctx.beginPath(); ctx.ellipse(cx-3+fj*3, cy-h*0.7, 1.6, 4, 0.2, 0, Math.PI*2); ctx.fill(); }
+      }
+    } else if (cropKey==="cafe"){
+      ctx.strokeStyle = "#4a3220"; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(cx, cy+8); ctx.lineTo(cx, cy+8-h*1.2); ctx.stroke();
+      ctx.fillStyle = "#3c6a2a";
+      [-1,1].forEach(function(side){
+        ctx.beginPath(); ctx.ellipse(cx+side*5, cy+2-h*0.6, 5+pct*3, 3.4+pct*2, side*0.3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx+side*4, cy-2-h*0.9, 4+pct*2, 3+pct*1.6, side*0.3, 0, Math.PI*2); ctx.fill();
+      });
+      if (ready){
+        ctx.fillStyle = "#7a2e1a";
+        for (var ck=0; ck<4; ck++){ ctx.beginPath(); ctx.arc(cx-4+ck*2.6, cy-h*0.7+((ck%2)*3), 1.4, 0, Math.PI*2); ctx.fill(); }
+      }
+    } else {
+      ctx.strokeStyle = "#8a6a2e"; ctx.lineWidth = 1.8;
+      [-4,0,4].forEach(function(off,i){
+        var hh = h*(0.8+0.1*i);
+        ctx.beginPath(); ctx.moveTo(cx+off, cy+8); ctx.lineTo(cx+off*1.3, cy+8-hh); ctx.stroke();
+        var headColor = ready ? def.color : "#8fae55";
+        ctx.fillStyle = headColor;
+        ctx.beginPath(); ctx.ellipse(cx+off*1.3, cy+6-hh, 2.6, 5.2, 0.15*off, 0, Math.PI*2); ctx.fill();
+      });
+    }
+  }
+
+  function drawField(z){
+    var r = zoneRectWorld(z); var p = state.plots[z.plotIndex];
+    var cx = r.x + r.w/2, cy = r.y + r.h/2;
+    if (p.locked){
+      ctx.fillStyle = "#4a4436"; ctx.fillRect(r.x+3, r.y+3, r.w-6, r.h-6);
+      ctx.strokeStyle = "#8c8468"; ctx.lineWidth = 2; ctx.strokeRect(r.x+3, r.y+3, r.w-6, r.h-6);
+      ctx.fillStyle = "#c9c2a8";
+      ctx.fillRect(cx-6, cy-2, 12, 10);
+      ctx.beginPath(); ctx.arc(cx, cy-4, 6, Math.PI, 0); ctx.stroke();
+      return;
+    }
+    var grad = ctx.createLinearGradient(r.x, r.y, r.x+r.w, r.y+r.h);
+    grad.addColorStop(0, "#5a3e26"); grad.addColorStop(1, "#7a5636");
+    ctx.fillStyle = grad; ctx.fillRect(r.x+3, r.y+3, r.w-6, r.h-6);
+    ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 1;
+    for (var fy=r.y+10; fy<r.y+r.h-4; fy+=8){
+      ctx.beginPath(); ctx.moveTo(r.x+5, fy); ctx.lineTo(r.x+r.w-5, fy+2); ctx.stroke();
+    }
+    ctx.strokeStyle = "#3f2a18"; ctx.lineWidth = 1; ctx.strokeRect(r.x+3, r.y+3, r.w-6, r.h-6);
+    if (p.crop){
+      var gDays2 = cropGrowDays(p.crop); var grown = state.day - p.plantedDay; var ready = grown >= gDays2;
+      var pct = Math.min(1, grown/gDays2);
+      shadow(cx, cy+9, 10, 3);
+      drawCropGlyph(cx, cy, p.crop, pct, ready);
+    }
+  }
+
+  function drawAnimalGlyph(cx, cy, type, scale){
+    scale = scale || 1;
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(scale, scale);
+    shadow(0, 9, 12, 3.5);
+    if (type==="galinha"){
+      ctx.fillStyle = "#2a2620";
+      ctx.fillRect(-4,4,2,5); ctx.fillRect(3,4,2,5);
+      ctx.fillStyle = "#f5f1e4"; ctx.beginPath(); ctx.ellipse(0,1,9,7,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(7,-6,4.6,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#c0392b";
+      ctx.beginPath(); ctx.moveTo(5,-10); ctx.quadraticCurveTo(7,-14,9,-10); ctx.quadraticCurveTo(7,-11,5,-10); ctx.fill();
+      ctx.fillStyle = "#d9a441"; ctx.beginPath(); ctx.moveTo(11,-6); ctx.lineTo(15,-5); ctx.lineTo(11,-4); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#e8e2cf"; ctx.beginPath(); ctx.moveTo(-9,-2); ctx.quadraticCurveTo(-14,-6,-11,2); ctx.quadraticCurveTo(-10,-2,-9,-2); ctx.fill();
+      ctx.fillStyle = "#2a2620"; ctx.beginPath(); ctx.arc(8.2,-6.6,0.9,0,Math.PI*2); ctx.fill();
+    } else if (type==="vaca"){
+      ctx.fillStyle = "#2a2620";
+      ctx.fillRect(-9,6,3,7); ctx.fillRect(-2,6,3,7); ctx.fillRect(5,6,3,7);
+      ctx.fillStyle = "#f5f1e4"; ctx.beginPath(); ctx.ellipse(0,2,15,9,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#2f2a24";
+      ctx.beginPath(); ctx.ellipse(-6,-1,4,3,0.3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(6,5,3.4,2.6,-0.2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#efe9d6"; ctx.beginPath(); ctx.ellipse(13,0,6,5.5,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#e7b9a8"; ctx.beginPath(); ctx.ellipse(17,1.5,2.6,2,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#efe9d6"; ctx.beginPath(); ctx.ellipse(10,-5,2.6,3,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(16,-5,2.6,3,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#2a2620"; ctx.beginPath(); ctx.arc(15,-0.5,0.8,0,Math.PI*2); ctx.fill();
+    } else {
+      ctx.fillStyle = "#2a2620"; ctx.fillRect(-7,5,3,5); ctx.fillRect(4,5,3,5);
+      ctx.fillStyle = "#f0b3a8"; ctx.beginPath(); ctx.ellipse(0,1,12,8,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(11,1,5.5,5,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#d98f83"; ctx.beginPath(); ctx.ellipse(14.5,1.5,3,2.4,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#7a3b28"; ctx.beginPath(); ctx.arc(13.6,0.6,0.6,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15.4,0.6,0.6,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#f0b3a8"; ctx.beginPath(); ctx.moveTo(8,-5); ctx.lineTo(10,-9); ctx.lineTo(11,-4); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "#e39a8d"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(-11,-1,2.4, Math.PI*0.2, Math.PI*1.8); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function penAnimalSlots(z, n){
+    var slots = []; var rnd = seededRnd2(z.gx*13+z.gy*7+1);
+    for (var i=0;i<n;i++){
+      var lx = 0.28 + (i%2)*0.9;
+      var ly = 0.3 + Math.floor(i/2)*0.65;
+      slots.push({ x: z.gx*TILE+Math.min(1.75,lx)*TILE, y: z.gy*TILE+Math.min(1.75,ly)*TILE });
+    }
+    return slots;
+  }
+  function seededRnd2(seed){ return function(){ seed = (seed*9301+49297)%233280; return seed/233280; }; }
+
+  var ANIMAL_WANDER = { galinha:[], vaca:[], porco:[] };
+  function ensureWander(type, n, z){
+    var arr = ANIMAL_WANDER[type];
+    while (arr.length < n){
+      var slot = penAnimalSlots(z, arr.length+1)[arr.length];
+      arr.push({ x:slot.x, y:slot.y, tx:slot.x, ty:slot.y, wait: 500+Math.random()*2000 });
+    }
+    if (arr.length > n) arr.length = n;
+    return arr;
+  }
+  function updateWander(arr, r){
+    var dt = runtime.dt || 0;
+    var margin = 0.2*TILE;
+    var minX=r.x+margin, maxX=r.x+r.w-margin, minY=r.y+margin, maxY=r.y+r.h-margin;
+    arr.forEach(function(a){
+      var dx=a.tx-a.x, dy=a.ty-a.y, d=Math.sqrt(dx*dx+dy*dy);
+      if (d<3){
+        a.wait -= dt;
+        if (a.wait<=0){
+          a.tx = minX+Math.random()*(maxX-minX);
+          a.ty = minY+Math.random()*(maxY-minY);
+          a.wait = 1500+Math.random()*2500;
+        }
+      } else {
+        var sp=0.014;
+        a.x += (dx/d)*sp*dt; a.y += (dy/d)*sp*dt;
+      }
+    });
+  }
+
+  function drawPen(z){
+    var r = zoneRectWorld(z);
+    var grad = ctx.createLinearGradient(r.x,r.y,r.x,r.y+r.h);
+    grad.addColorStop(0,"#6b5636"); grad.addColorStop(1,"#54432a");
+    ctx.fillStyle = grad; ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.strokeStyle = "rgba(0,0,0,0.2)"; ctx.lineWidth=1;
+    for (var i=0;i<6;i++){ ctx.beginPath(); ctx.moveTo(r.x+4, r.y+8+i*((r.h-16)/6)); ctx.lineTo(r.x+r.w-4, r.y+6+i*((r.h-16)/6)); ctx.stroke(); }
+    var a = state.animals[z.animalType];
+    var n = Math.min(a.count, 6);
+    var wander = ensureWander(z.animalType, n, z);
+    updateWander(wander, r);
+    wander.forEach(function(w, idx){
+      var scale = 0.62;
+      if (z.animalType==="porco" && a.pigs[idx]){
+        var grown = state.day - a.pigs[idx].boughtDay;
+        var fatPct = Math.min(1, grown/ANIMAL_TYPES.porco.growDays);
+        scale = 0.4 + fatPct*0.32;
+      }
+      drawAnimalGlyph(w.x, w.y, z.animalType, scale);
+    });
+    var fenceLevel = a.max - ANIMAL_TYPES[z.animalType].startMax;
+    drawFence(r, fenceLevel);
+    var signLabel = z.label + "  Nv." + Math.min(fenceLevel+1, PEN_MAX_LEVEL) + "/" + PEN_MAX_LEVEL;
+    ctx.font = "bold 10px Consolas, monospace"; ctx.textAlign="center";
+    var signW = Math.max(76, ctx.measureText(signLabel).width+14);
+    ctx.fillStyle = "rgba(20,25,15,0.55)"; ctx.fillRect(r.x+r.w/2-signW/2, r.y-16, signW, 13);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText(signLabel, r.x+r.w/2, r.y-6);
+  }
+
+  function drawMarket(z){
+    var r = zoneRectWorld(z);
+    shadow(r.x+r.w/2, r.y+r.h-4, r.w*0.42, 6);
+    var body = ctx.createLinearGradient(r.x,0,r.x+r.w,0);
+    body.addColorStop(0,"#8b9285"); body.addColorStop(0.5,"#a8af9f"); body.addColorStop(1,"#7d8579");
+    ctx.fillStyle = body; ctx.fillRect(r.x+8, r.y+16, r.w-16, r.h-16);
+    ctx.strokeStyle = "rgba(0,0,0,0.15)"; ctx.lineWidth=1.2;
+    for (var cx0=r.x+12; cx0<r.x+r.w-8; cx0+=6){ ctx.beginPath(); ctx.moveTo(cx0, r.y+17); ctx.lineTo(cx0, r.y+r.h-1); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(r.x+4, r.y+16); ctx.lineTo(r.x+r.w/2, r.y-4); ctx.lineTo(r.x+r.w-4, r.y+16); ctx.closePath();
+    var roof = ctx.createLinearGradient(r.x, r.y-4, r.x, r.y+16);
+    roof.addColorStop(0,"#6b7364"); roof.addColorStop(1,"#4a5142");
+    ctx.fillStyle = roof; ctx.fill();
+    ctx.fillStyle = "#5c5346"; ctx.fillRect(r.x+r.w/2-7, r.y+r.h-16, 14, 16);
+    ctx.fillStyle = "rgba(20,25,15,0.55)"; ctx.fillRect(r.x+r.w/2-30, r.y+r.h+2, 60, 13);
+    ctx.font = "bold 10px Consolas, monospace"; ctx.textAlign="center"; ctx.fillStyle = "#f0ead8";
+    ctx.fillText("Mercado", r.x+r.w/2, r.y+r.h+12);
+  }
+
+  function drawHome(z){
+    var r = zoneRectWorld(z);
+    var upgraded = state.built.casaReformada;
+    shadow(r.x+r.w/2, r.y+r.h-2, r.w*0.42, 6);
+    ctx.fillStyle = upgraded ? "#9c7a54" : "#8a6a4a"; ctx.fillRect(r.x+4, r.y+14, r.w-8, r.h-14);
+    ctx.strokeStyle = "rgba(0,0,0,0.2)"; ctx.lineWidth=1;
+    for (var wy=r.y+22; wy<r.y+r.h-2; wy+=8){ ctx.beginPath(); ctx.moveTo(r.x+4,wy); ctx.lineTo(r.x+r.w-4,wy); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(r.x-2, r.y+14); ctx.lineTo(r.x+r.w/2, r.y-10); ctx.lineTo(r.x+r.w+2, r.y+14); ctx.closePath();
+    var roof = ctx.createLinearGradient(r.x, r.y-10, r.x, r.y+14);
+    roof.addColorStop(0, upgraded?"#7a5236":"#6e4a30"); roof.addColorStop(1,"#4a3220");
+    ctx.fillStyle = roof; ctx.fill();
+    ctx.fillStyle = "#3f2a18"; ctx.fillRect(r.x+r.w/2-8, r.y+r.h-22, 16, 22);
+    ctx.fillStyle = "#e0b23a"; ctx.beginPath(); ctx.arc(r.x+r.w/2+5, r.y+r.h-12, 1.4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "rgba(160,200,220,0.6)"; ctx.fillRect(r.x+r.w-16, r.y+22, 9, 9);
+    ctx.strokeStyle = "#3f2a18"; ctx.lineWidth=1; ctx.strokeRect(r.x+r.w-16, r.y+22, 9, 9);
+    if (upgraded){
+      ctx.fillStyle = "#5c4a3a"; ctx.fillRect(r.x+r.w-16, r.y-20, 7, 16);
+      var t = (runtime.t||0)/500;
+      ctx.fillStyle = "rgba(225,225,225,0.55)";
+      ctx.beginPath(); ctx.arc(r.x+r.w-12, r.y-24-Math.sin(t)*2, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(r.x+r.w-10, r.y-30-Math.cos(t*0.8)*2, 4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#4f7a2f"; ctx.fillRect(r.x+r.w-17, r.y+31, 10, 3);
+    }
+    ctx.fillStyle = "rgba(20,25,15,0.55)"; ctx.fillRect(r.x+r.w/2-28, r.y-24, 56, 13);
+    ctx.font = "bold 10px Consolas, monospace"; ctx.textAlign="center"; ctx.fillStyle = "#f0ead8";
+    ctx.fillText(z.label, r.x+r.w/2, r.y-14);
+  }
+
+  function drawEspantalho(){
+    var cx=4.3*TILE, cy=5*TILE;
+    shadow(cx, cy+13, 8, 3);
+    ctx.strokeStyle = "#6e5230"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(cx, cy-19); ctx.lineTo(cx, cy+11); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-9, cy-6); ctx.lineTo(cx+9, cy-6); ctx.stroke();
+    ctx.fillStyle = "#c9962e";
+    ctx.beginPath(); ctx.moveTo(cx-9,cy-6); ctx.lineTo(cx+9,cy-6); ctx.lineTo(cx+6,cy+6); ctx.lineTo(cx-6,cy+6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#e8c39e"; ctx.beginPath(); ctx.arc(cx, cy-13, 5.5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "#7a3b28"; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(cx-3,cy-15); ctx.lineTo(cx-1,cy-12); ctx.moveTo(cx-1,cy-15); ctx.lineTo(cx-3,cy-12);
+    ctx.moveTo(cx+1,cy-15); ctx.lineTo(cx+3,cy-12); ctx.moveTo(cx+3,cy-15); ctx.lineTo(cx+1,cy-12); ctx.stroke();
+    ctx.fillStyle = "#8a6a3e"; ctx.beginPath(); ctx.ellipse(cx, cy-19, 7.5, 3, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#6e5230"; ctx.beginPath(); ctx.arc(cx, cy-21, 4.2, Math.PI, 0); ctx.fill();
+    ctx.font = "bold 9px Consolas, monospace"; ctx.textAlign="center";
+    ctx.fillStyle = "rgba(20,25,15,0.5)"; ctx.fillRect(cx-28, cy-32, 56, 12);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText("Espantalho", cx, cy-23);
+  }
+
+  function drawPoco(){
+    var cx=1.5*TILE, cy=7.35*TILE;
+    shadow(cx, cy+9, 12, 4);
+    ctx.strokeStyle = "#6e5230"; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(cx-9,cy-3); ctx.lineTo(cx-9,cy-17); ctx.moveTo(cx+9,cy-3); ctx.lineTo(cx+9,cy-17); ctx.stroke();
+    ctx.fillStyle = "#8a6a3e"; ctx.beginPath(); ctx.moveTo(cx-12,cy-17); ctx.lineTo(cx,cy-25); ctx.lineTo(cx+12,cy-17); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#8a8577"; ctx.beginPath(); ctx.ellipse(cx,cy,11,7,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "#6b6659"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(cx,cy,11,7,0,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle = "#3a5a68"; ctx.beginPath(); ctx.ellipse(cx,cy,6.4,3.8,0,0,Math.PI*2); ctx.fill();
+    ctx.font = "bold 9px Consolas, monospace"; ctx.textAlign="center";
+    ctx.fillStyle = "rgba(20,25,15,0.5)"; ctx.fillRect(cx-16, cy-34, 32, 12);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText("Poço", cx, cy-25);
+  }
+
+  function drawCeleiro(){
+    var cx=6.5*TILE, cy=2.6*TILE, w=44, h=34;
+    var x=cx-w/2, y=cy-h/2+8;
+    shadow(cx, y+h+2, w*0.42, 6);
+    ctx.fillStyle = "#8a3b2e"; ctx.fillRect(x, y+12, w, h-12);
+    ctx.strokeStyle = "rgba(0,0,0,0.15)"; ctx.lineWidth=1;
+    for (var i=1;i<4;i++){ ctx.beginPath(); ctx.moveTo(x+i*(w/4), y+12); ctx.lineTo(x+i*(w/4), y+h); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(x-4, y+12); ctx.lineTo(x+w/2, y-10); ctx.lineTo(x+w+4, y+12); ctx.closePath();
+    var roof = ctx.createLinearGradient(x,y-10,x,y+12); roof.addColorStop(0,"#6b4a3a"); roof.addColorStop(1,"#4a3226");
+    ctx.fillStyle=roof; ctx.fill();
+    ctx.strokeStyle = "#f2ede0"; ctx.lineWidth = 2;
+    ctx.strokeRect(x+w/2-9, y+14, 18, 16);
+    ctx.beginPath(); ctx.moveTo(x+w/2-9,y+14); ctx.lineTo(x+w/2+9,y+30); ctx.moveTo(x+w/2+9,y+14); ctx.lineTo(x+w/2-9,y+30); ctx.stroke();
+    ctx.fillStyle = "rgba(20,25,15,0.55)"; ctx.fillRect(cx-30, y-24, 60, 13);
+    ctx.font = "bold 10px Consolas, monospace"; ctx.textAlign="center"; ctx.fillStyle = "#f0ead8";
+    ctx.fillText("Celeiro", cx, y-14);
+  }
+
+  function drawSiloGraos(){
+    var cx=3.3*TILE, cy=7.3*TILE;
+    shadow(cx, cy+14, 10, 4);
+    var body = ctx.createLinearGradient(cx-9,0,cx+9,0);
+    body.addColorStop(0,"#7d95a0"); body.addColorStop(0.5,"#a8c0ca"); body.addColorStop(1,"#6b8590");
+    ctx.fillStyle=body; ctx.fillRect(cx-9, cy-14, 18, 26);
+    ctx.beginPath(); ctx.ellipse(cx, cy-14, 9, 3, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle="#5c7480"; ctx.beginPath(); ctx.moveTo(cx-9,cy-16); ctx.lineTo(cx,cy-24); ctx.lineTo(cx+9,cy-16); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle="rgba(0,0,0,0.15)"; ctx.lineWidth=1;
+    for (var yy=cy-10; yy<cy+10; yy+=5){ ctx.beginPath(); ctx.moveTo(cx-9,yy); ctx.lineTo(cx+9,yy); ctx.stroke(); }
+    ctx.font="bold 9px Consolas, monospace"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(20,25,15,0.5)"; ctx.fillRect(cx-32,cy-32,64,12);
+    ctx.fillStyle="#f0ead8"; ctx.fillText("Silo de Grãos", cx, cy-23);
+  }
+
+  function drawMoinho(){
+    var cx=1.8*TILE, cy=9*TILE;
+    shadow(cx, cy+16, 10, 4);
+    ctx.fillStyle = "#c9c2a8"; ctx.fillRect(cx-6, cy-2, 12, 20);
+    ctx.strokeStyle="#8c8468"; ctx.lineWidth=1; ctx.strokeRect(cx-6,cy-2,12,20);
+    ctx.fillStyle="#7a5636"; ctx.beginPath(); ctx.moveTo(cx-8,cy-2); ctx.lineTo(cx,cy-10); ctx.lineTo(cx+8,cy-2); ctx.closePath(); ctx.fill();
+    var angle = (runtime.t||0)/700;
+    ctx.save(); ctx.translate(cx, cy-8);
+    for (var i=0;i<4;i++){
+      ctx.save(); ctx.rotate(angle + i*Math.PI/2);
+      ctx.fillStyle="#e8e2cf";
+      ctx.beginPath(); ctx.ellipse(0,-11,3.4,10,0,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillStyle="#5a4128"; ctx.beginPath(); ctx.arc(0,0,2.6,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+    ctx.font="bold 9px Consolas, monospace"; ctx.textAlign="center";
+    ctx.fillStyle="rgba(20,25,15,0.5)"; ctx.fillRect(cx-24,cy-30,48,12);
+    ctx.fillStyle="#f0ead8"; ctx.fillText("Moinho", cx, cy-21);
+  }
+
+  function drawEstufa(){
+    var cx=5*TILE, cy=6.3*TILE, w=40, h=28;
+    var x=cx-w/2, y=cy-h/2+6;
+    shadow(cx, y+h+2, w*0.42, 5);
+    ctx.strokeStyle = "#8ba894"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x, y+h); ctx.lineTo(x, y+8); ctx.lineTo(x+w/2, y-6); ctx.lineTo(x+w, y+8); ctx.lineTo(x+w, y+h); ctx.closePath();
+    ctx.fillStyle = "rgba(232,240,234,0.55)"; ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = "#f2ede0"; ctx.lineWidth = 1.4;
+    for (var gxp=x+w/4; gxp<x+w; gxp+=w/4){ ctx.beginPath(); ctx.moveTo(gxp, y+8); ctx.lineTo(gxp, y+h); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(x, y+8); ctx.lineTo(x+w, y+8); ctx.stroke();
+    ctx.fillStyle = "rgba(90,140,60,0.55)";
+    [0.25,0.5,0.75].forEach(function(f){ ctx.beginPath(); ctx.arc(x+w*f, y+h-4, 3.4, 0, Math.PI*2); ctx.fill(); });
+    ctx.font = "bold 9px Consolas, monospace"; ctx.textAlign="center";
+    ctx.fillStyle = "rgba(20,25,15,0.5)"; ctx.fillRect(cx-24, y-16, 48, 12);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText("Estufa", cx, y-7);
+  }
+
+  function drawDeposito(){
+    var cx=10.5*TILE, cy=8.3*TILE, w=34, h=26;
+    var x=cx-w/2, y=cy-h/2+6;
+    shadow(cx, y+h+2, w*0.42, 5);
+    ctx.fillStyle = "#8a6a4a"; ctx.fillRect(x, y+8, w, h-8);
+    var roof = ctx.createLinearGradient(x,y-6,x,y+8); roof.addColorStop(0,"#6e4a30"); roof.addColorStop(1,"#4a3220");
+    ctx.beginPath(); ctx.moveTo(x-3, y+8); ctx.lineTo(x+w/2, y-6); ctx.lineTo(x+w+3, y+8); ctx.closePath();
+    ctx.fillStyle = roof; ctx.fill();
+    ctx.fillStyle = "#3f2a18"; ctx.fillRect(x+w/2-5, y+h-10, 10, 10);
+    [[-10,4],[6,6]].forEach(function(o){
+      ctx.fillStyle = "#c9a35c";
+      ctx.beginPath(); ctx.ellipse(cx+o[0], y+h+o[1], 6, 4.4, 0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = "#8a6a3e"; ctx.lineWidth = 1; ctx.stroke();
+    });
+    ctx.font = "bold 9px Consolas, monospace"; ctx.textAlign="center";
+    ctx.fillStyle = "rgba(20,25,15,0.5)"; ctx.fillRect(cx-34, y-16, 68, 12);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText("Depósito de Ração", cx, y-7);
+  }
+
+  function drawNpc(z){
+    var cx = z.gx*TILE+TILE/2, cy = z.gy*TILE+TILE/2;
+    shadow(cx, cy+13, 10, 3.5);
+    ctx.save(); ctx.translate(cx,cy);
+    ctx.fillStyle = "#6b4a2e";
+    if (ctx.roundRect){ ctx.beginPath(); ctx.roundRect(-8,-3,16,15,4); ctx.fill(); } else { ctx.fillRect(-8,-3,16,15); }
+    ctx.fillStyle = "#8a6a3e"; ctx.fillRect(-8,4,16,6);
+    ctx.fillStyle = "#e8c39e"; ctx.beginPath(); ctx.arc(0,-9,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#2a2620";
+    ctx.beginPath(); ctx.arc(-2.4,-9,1.1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(2.4,-9,1.1,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#d3a13a";
+    ctx.beginPath(); ctx.ellipse(0,-15,10,3.8,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,-17,5.5,Math.PI,0); ctx.fill();
+    ctx.restore();
+    ctx.font = "bold 10px Consolas, monospace"; ctx.textAlign="center";
+    ctx.fillStyle = "rgba(20,25,15,0.55)"; ctx.fillRect(cx-32, cy-32, 64, 13);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText(z.label, cx, cy-22);
+  }
+
+  function drawTreeTopDown(n){
+    var cx=n.wx*TILE, cy=n.wy*TILE;
+    var hp = 0.72+0.09*n.health;
+    shadow(cx, cy+7, 11*hp, 4*hp);
+    ctx.fillStyle = "#5a4128"; ctx.fillRect(cx-2.6, cy+2, 5.2, 8*hp);
+    ctx.fillStyle = "#3c6a2a"; ctx.beginPath(); ctx.arc(cx, cy-3, 12*hp, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#4d7a34";
+    ctx.beginPath(); ctx.arc(cx-5*hp, cy-6, 8*hp, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+6*hp, cy-5, 8.5*hp, 0, Math.PI*2); ctx.fill();
+  }
+  function drawRockTopDown(n){
+    var cx=n.wx*TILE, cy=n.wy*TILE;
+    var hp = 0.72+0.09*n.health;
+    shadow(cx, cy+6, 10*hp, 3.6*hp);
+    ctx.fillStyle = "#8a8577";
+    ctx.beginPath();
+    ctx.moveTo(cx-9*hp,cy+5); ctx.lineTo(cx-6*hp,cy-7*hp); ctx.lineTo(cx+2*hp,cy-9*hp);
+    ctx.lineTo(cx+9*hp,cy-2*hp); ctx.lineTo(cx+6*hp,cy+5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.2)";
+    ctx.beginPath(); ctx.ellipse(cx-2*hp, cy-5*hp, 3.6*hp, 2*hp, 0.3, 0, Math.PI*2); ctx.fill();
+  }
+
+  function drawGroundItems(){
+    state.groundItems.forEach(function(it, idx){
+      var cx = it.wx*TILE, cy = it.wy*TILE;
+      var pulse = 2+Math.sin(runtime.t/220+idx)*1.5;
+      shadow(cx, cy+4, 7, 2.6);
+      ctx.strokeStyle = "rgba(240,220,150,0.5)"; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.ellipse(cx, cy+2, 8+pulse*0.5, 3+pulse*0.3, 0, 0, Math.PI*2); ctx.stroke();
+      if (it.kind==="madeira"){
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(0.35);
+        ctx.fillStyle = "#8a6a3e"; ctx.fillRect(-7,-2.2,14,4.4);
+        ctx.strokeStyle = "#5a4128"; ctx.lineWidth = 1; ctx.strokeRect(-7,-2.2,14,4.4);
+        ctx.restore();
+      } else if (it.kind==="pedra"){
+        ctx.fillStyle = "#8a8577";
+        ctx.beginPath(); ctx.moveTo(cx-6,cy+3); ctx.lineTo(cx-3,cy-5); ctx.lineTo(cx+4,cy-4); ctx.lineTo(cx+6,cy+3); ctx.closePath(); ctx.fill();
+      } else if (it.kind==="minerio"){
+        ctx.fillStyle = "#d3a13a";
+        ctx.beginPath(); ctx.moveTo(cx,cy-5); ctx.lineTo(cx+4,cy); ctx.lineTo(cx,cy+5); ctx.lineTo(cx-4,cy); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = "#f2d98a"; ctx.lineWidth = 1; ctx.stroke();
+      } else if (it.kind==="ovos"){
+        ctx.fillStyle = "#f5f1e4"; ctx.strokeStyle = "#d9d2ba"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(cx, cy, 4.4, 5.6, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      } else if (it.kind==="leite"){
+        ctx.fillStyle = "#eef3f7"; ctx.strokeStyle = "#b9c4cc"; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx-4,cy-6); ctx.lineTo(cx+4,cy-6); ctx.lineTo(cx+4,cy+3); ctx.lineTo(cx+2,cy+6); ctx.lineTo(cx-2,cy+6); ctx.lineTo(cx-4,cy+3); ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#2f6a7a"; ctx.fillRect(cx-4,cy-6,8,2.4);
+      }
+      if (it.qty>1){
+        ctx.font = "bold 9px Consolas, monospace"; ctx.textAlign="center";
+        ctx.fillStyle = "#f0ead8"; ctx.strokeStyle="rgba(0,0,0,0.6)"; ctx.lineWidth=2.4;
+        ctx.strokeText(String(it.qty), cx, cy+13); ctx.fillText(String(it.qty), cx, cy+13);
+      }
+    });
+  }
+
+  function drawWolf(){
+    if (!state.wolf) return;
+    var x = state.wolf.wx*TILE, y = state.wolf.wy*TILE;
+    var pulse = 1+Math.sin(runtime.t/200)*0.5;
+    shadow(x, y+9, 12, 3.5);
+    ctx.fillStyle = "#3a3a3a";
+    ctx.fillRect(x-8,y+4,3,7); ctx.fillRect(x-1,y+4,3,7); ctx.fillRect(x+5,y+4,3,7);
+    ctx.fillStyle = "#4a4a48"; ctx.beginPath(); ctx.ellipse(x,y,13,7,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+11,y-2,6,5.4,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#3a3a38";
+    ctx.beginPath(); ctx.moveTo(x+8,y-7); ctx.lineTo(x+10,y-13); ctx.lineTo(x+12,y-7); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x+13,y-6); ctx.lineTo(x+16,y-12); ctx.lineTo(x+16,y-5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#2a2a28";
+    ctx.beginPath(); ctx.moveTo(x+15,y+1); ctx.quadraticCurveTo(x+18,y+3,x+16,y+5); ctx.quadraticCurveTo(x+13,y+2,x+15,y+1); ctx.fill();
+    ctx.fillStyle = "#e0392b";
+    ctx.beginPath(); ctx.arc(x+13,y-3,1.1*pulse,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+16,y-4,1.1*pulse,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "#1c1c1a"; ctx.lineWidth = 3.4; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(x-13,y+3); ctx.quadraticCurveTo(x-20,y-2,x-16,y-9); ctx.stroke();
+    ctx.lineCap = "butt";
+    var label = "Lobo!";
+    ctx.font = "bold 10px Consolas, monospace"; ctx.textAlign="center";
+    var tw = ctx.measureText(label).width;
+    ctx.fillStyle = "rgba(120,20,10,0.75)"; ctx.fillRect(x-tw/2-4, y-26, tw+8, 13);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText(label, x, y-17);
+  }
+
+  function mascotPos(){
+    if (!runtime.mascotTrail.length) return { x: runtime.px, y: runtime.py };
+    return runtime.mascotTrail[0];
+  }
+  function drawMascot(){
+    var pos = mascotPos(); var x=pos.x, y=pos.y; var color = state.player.mascotColor;
+    shadow(x, y+9, 9, 3.4);
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.ellipse(x, y, 8, 6, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+7, y-2, 4.6, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+5, y-6.5, 2, 3.2, -0.4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+9, y-6.5, 2, 3.2, 0.4, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.6; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(x-7, y-2); ctx.quadraticCurveTo(x-13, y-6, x-11, y-11); ctx.stroke();
+    ctx.lineCap = "butt";
+    ctx.fillStyle = "#2a2620"; ctx.beginPath(); ctx.arc(x+9.6, y-2.4, 1, 0, Math.PI*2); ctx.fill();
+    var label = state.player.mascotName || "Mascote";
+    ctx.font = "bold 10px Consolas, monospace"; ctx.textAlign="center";
+    var tw = ctx.measureText(label).width;
+    ctx.fillStyle = "rgba(20,25,15,0.55)"; ctx.fillRect(x-tw/2-4, y-24, tw+8, 13);
+    ctx.fillStyle = "#f0ead8"; ctx.fillText(label, x, y-15);
+  }
+
+  function drawPlayer(){
+    var x = runtime.px, y = runtime.py;
+    var walk = runtime.moving ? Math.sin(runtime.t/90)*5 : 0;
+    shadow(x, y+13, 10, 3.5);
+    ctx.fillStyle = "#3a2c1e";
+    ctx.fillRect(x-7, y+2+Math.max(0,walk*0.4), 3, 9);
+    ctx.fillRect(x+4, y+2+Math.max(0,-walk*0.4), 3, 9);
+    ctx.save();
+    ctx.translate(x,y);
+    if (runtime.facing==="left") ctx.scale(-1,1);
+    ctx.fillStyle = state.player.color;
+    if (ctx.roundRect){ ctx.beginPath(); ctx.roundRect(-8,-3,16,15,4); ctx.fill(); } else { ctx.fillRect(-8,-3,16,15); }
+    ctx.fillStyle = "rgba(0,0,0,0.12)"; ctx.fillRect(-8,-3,4,15);
+    ctx.fillStyle = state.player.color;
+    ctx.beginPath(); ctx.ellipse(-9, 1+walk*0.5, 3, 5, 0.2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(9, 1-walk*0.5, 3, 5, -0.2, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#e8c39e"; ctx.beginPath(); ctx.arc(0,-9,7,0,Math.PI*2); ctx.fill();
+    var lookX = (runtime.facing==="up"||runtime.facing==="down") ? 0 : 2.4;
+    var lookY = runtime.facing==="up" ? -1.5 : (runtime.facing==="down" ? 1.5 : 0);
+    ctx.fillStyle = "#2a2620";
+    if (runtime.facing!=="up"){
+      ctx.beginPath(); ctx.arc(-2.4+lookX, -9+lookY, 1.1, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(2.4+lookX, -9+lookY, 1.1, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle = "#3a2c1e";
+    ctx.beginPath(); ctx.ellipse(0,-15,9,3.6,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-5,-16); ctx.quadraticCurveTo(0,-24,5,-16); ctx.quadraticCurveTo(0,-19,-5,-16); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
+    ctx.beginPath(); ctx.ellipse(-2,-18,2.4,1.4,0.4,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawZoneHighlight(z){
+    if (!z) return;
+    if (z.kind==="resource"){
+      var cx=z.node.wx*TILE, cy=z.node.wy*TILE;
+      ctx.strokeStyle = "#f2d98a"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.arc(cx, cy, 16, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      return;
+    }
+    if (z.kind==="wolf"){
+      if (!state.wolf) return;
+      var cxw=state.wolf.wx*TILE, cyw=state.wolf.wy*TILE;
+      ctx.strokeStyle = "#e05a3a"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.arc(cxw, cyw, 18, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      return;
+    }
+    var r = zoneRectWorld(z);
+    ctx.strokeStyle = "#f2d98a"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+    ctx.strokeRect(r.x, r.y, r.w, r.h);
+    ctx.setLineDash([]);
+  }
+
+  function frame(ts){
+    if (!runtime.lastTs) runtime.lastTs = ts;
+    var dt = Math.min(40, ts-runtime.lastTs); runtime.lastTs = ts; runtime.t = ts; runtime.dt = dt;
+
+    if (!gameActive){ requestAnimationFrame(frame); return; }
+
+    runtime.dayProgress += (dt*runtime.daySpeed)/DAY_DURATION_MS;
+    if (runtime.dayProgress >= 1){ runtime.dayProgress = 0; advanceDay(); }
+    if (dayProgressBar) dayProgressBar.style.width = (Math.min(1,runtime.dayProgress)*100)+"%";
+
+    var speed = 0.2;
+    var dx=0, dy=0;
+    if (runtime.keys.up) dy-=1; if (runtime.keys.down) dy+=1;
+    if (runtime.keys.left) dx-=1; if (runtime.keys.right) dx+=1;
+    if (dx||dy){
+      runtime.target = null;
+      var len = Math.sqrt(dx*dx+dy*dy); dx/=len; dy/=len;
+      runtime.px += dx*speed*dt; runtime.py += dy*speed*dt;
+      runtime.moving = true;
+      if (Math.abs(dx)>Math.abs(dy)) runtime.facing = dx>0?"right":"left"; else runtime.facing = dy>0?"down":"up";
+    } else if (runtime.target){
+      var tx = runtime.target.x - runtime.px, ty = runtime.target.y - runtime.py;
+      var dist = Math.sqrt(tx*tx+ty*ty);
+      if (dist < 4){ runtime.target = null; runtime.moving = false; }
+      else {
+        tx/=dist; ty/=dist; runtime.px += tx*speed*dt; runtime.py += ty*speed*dt; runtime.moving = true;
+        if (Math.abs(tx)>Math.abs(ty)) runtime.facing = tx>0?"right":"left"; else runtime.facing = ty>0?"down":"up";
+      }
+    } else { runtime.moving = false; }
+
+    runtime.px = Math.max(14, Math.min(MAP_W-14, runtime.px));
+    runtime.py = Math.max(14, Math.min(MAP_H-14, runtime.py));
+
+    runtime.mascotTrail.push({ x: runtime.px, y: runtime.py });
+    if (runtime.mascotTrail.length > MASCOT_LAG) runtime.mascotTrail.shift();
+
+    checkPickups();
+
+    var z = computeZone();
+    var zKey = z ? z.key : null;
+    if (zKey !== runtime.zoneKey){ runtime.zoneKey = zKey; runtime.zone = z; renderZonePanel(); }
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "#232920"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.save();
+    ctx.translate(OFFSET_X, OFFSET_Y);
+    ctx.beginPath(); ctx.rect(0,0,MAP_W,MAP_H); ctx.clip();
+    drawGrass();
+    ZONES.forEach(function(zz){
+      if (zz.kind==="field") drawField(zz);
+      else if (zz.kind==="pen") drawPen(zz);
+      else if (zz.kind==="market") drawMarket(zz);
+      else if (zz.kind==="home") drawHome(zz);
+      else if (zz.kind==="npc") drawNpc(zz);
+    });
+    if (state.built.espantalho) drawEspantalho();
+    if (state.built.poco) drawPoco();
+    if (state.built.celeiro) drawCeleiro();
+    if (state.built.silo) drawSiloGraos();
+    if (state.built.moinho) drawMoinho();
+    if (state.built.estufa) drawEstufa();
+    if (state.built.racao) drawDeposito();
+    state.resourceNodes.forEach(function(n){
+      if (n.respawnDay!=null || n.health<=0) return;
+      if (n.kind==="tree") drawTreeTopDown(n); else drawRockTopDown(n);
+    });
+    drawGroundItems();
+    drawWolf();
+    drawZoneHighlight(z);
+    drawMascot();
+    drawPlayer();
+    ctx.restore();
+
+    requestAnimationFrame(frame);
+  }
+
+  function isTypingTarget(el){ return el && (el.tagName==="INPUT" || el.tagName==="TEXTAREA"); }
+
+  window.addEventListener("keydown", function(e){
+    if (isTypingTarget(document.activeElement)) return;
+    var k = e.key.toLowerCase();
+    if (["arrowup","arrowdown","arrowleft","arrowright"," ","e"].indexOf(k)>-1) e.preventDefault();
+    if (k==="w"||k==="arrowup") runtime.keys.up = true;
+    else if (k==="s"||k==="arrowdown") runtime.keys.down = true;
+    else if (k==="a"||k==="arrowleft") runtime.keys.left = true;
+    else if (k==="d"||k==="arrowright") runtime.keys.right = true;
+    else if (k==="e") handleInteract();
+  });
+  window.addEventListener("keyup", function(e){
+    if (isTypingTarget(document.activeElement)) return;
+    var k = e.key.toLowerCase();
+    if (k==="w"||k==="arrowup") runtime.keys.up = false;
+    else if (k==="s"||k==="arrowdown") runtime.keys.down = false;
+    else if (k==="a"||k==="arrowleft") runtime.keys.left = false;
+    else if (k==="d"||k==="arrowright") runtime.keys.right = false;
+  });
+
+  canvas.addEventListener("click", function(e){
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+    var x = (e.clientX-rect.left)*scaleX - OFFSET_X, y = (e.clientY-rect.top)*scaleY - OFFSET_Y;
+    runtime.target = { x:x, y:y }; runtime.keys = {};
+  });
+  canvas.addEventListener("touchstart", function(e){
+    if (!e.touches[0]) return;
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+    var x = (e.touches[0].clientX-rect.left)*scaleX - OFFSET_X, y = (e.touches[0].clientY-rect.top)*scaleY - OFFSET_Y;
+    runtime.target = { x:x, y:y }; runtime.keys = {};
+  }, {passive:true});
+
+  function handleInteract(){
+    if (!gameActive) return;
+    var z = runtime.zone; if (!z) return;
+    if (z.kind==="field"){
+      var p = state.plots[z.plotIndex];
+      if (p.locked) unlockPlot(z.plotIndex);
+      else if (p.crop){ if (state.day-p.plantedDay >= cropGrowDays(p.crop)) harvest(z.plotIndex); }
+    } else if (z.kind==="pen"){
+      feedAll(z.animalType);
+    } else if (z.kind==="resource"){
+      gatherResource(z.node.id);
+    } else if (z.kind==="poco"){
+      collectWater();
+    } else if (z.kind==="wolf"){
+      shootWolf();
+    }
+  }
+
+  var actionFab = document.getElementById("actionFab");
+  if (actionFab) actionFab.addEventListener("click", function(e){ e.stopPropagation(); handleInteract(); });
+
+  // ---- login / profiles ----
+  var profiles = loadProfiles();
+  var newColorSel = PLAYER_COLORS[0], newMascotColorSel = PLAYER_COLORS[1];
+  var loginOverlay = document.getElementById("loginOverlay");
+
+  function resetRuntimeForNewSession(){
+    runtime.px = 5.5*TILE; runtime.py = 3*TILE;
+    runtime.mascotTrail = []; runtime.zone = null; runtime.zoneKey = null;
+    runtime.keys = {}; runtime.target = null; runtime.facing = "down"; runtime.moving = false;
+    runtime.dayProgress = 0; runtime.daySpeed = 1;
+    ANIMAL_WANDER.galinha = []; ANIMAL_WANDER.vaca = []; ANIMAL_WANDER.porco = [];
+  }
+
+  function enterGame(){
+    gameActive = true;
+    loginOverlay.classList.add("hidden");
+    nameInput.value = state.player.name;
+    mascotNameInput.value = state.player.mascotName;
+    renderSwatches(); renderMascotSwatches();
+    document.querySelectorAll("#speedGroup .speedbtn").forEach(function(x){ x.classList.toggle("sel", x.dataset.speed==="1"); });
+    render();
+  }
+
+  function startProfile(name){
+    activeProfile = name;
+    try { localStorage.setItem("fazenda-active-profile-v1", name); } catch(e){}
+    var loaded = loadProfileState(name);
+    if (loaded){ state = loaded; }
+    else {
+      var entry = profiles.find(function(p){ return p.name===name; });
+      state = freshState({
+        name: name,
+        color: (entry && entry.color) || PLAYER_COLORS[0],
+        mascotName: (entry && entry.mascotName) || "Rex",
+        mascotColor: (entry && entry.mascotColor) || PLAYER_COLORS[1]
+      });
+      saveState();
+    }
+    resetRuntimeForNewSession();
+    enterGame();
+  }
+
+  function renderProfileList(){
+    var el = document.getElementById("profileList");
+    if (!profiles.length){ el.innerHTML = '<div class="zone-empty">Nenhum perfil salvo ainda — crie um abaixo.</div>'; return; }
+    el.innerHTML = profiles.map(function(p){
+      return '<div class="profile-row" data-name="'+escapeHtml(p.name)+'">' +
+        '<span class="pname">'+escapeHtml(p.name)+'</span>' +
+        '<input type="password" class="loginPass" placeholder="senha" maxlength="24">' +
+        '<button data-act="login" type="button">Entrar</button>' +
+        '<button class="ghost" data-act="delete-profile" type="button">Excluir</button>' +
+        '</div>';
+    }).join("");
+  }
+
+  document.getElementById("profileList").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-act]"); if (!b) return;
+    var row = b.closest(".profile-row"); var name = row.dataset.name;
+    if (b.dataset.act==="login"){
+      var entry = profiles.find(function(p){ return p.name===name; });
+      var entered = row.querySelector(".loginPass").value;
+      if (entry.passwordFacade && entered!==entry.passwordFacade){
+        var err = row.querySelector(".login-error");
+        if (!err){ err = document.createElement("div"); err.className="login-error"; row.appendChild(err); }
+        err.textContent = "Senha incorreta.";
+        return;
+      }
+      startProfile(name);
+    } else if (b.dataset.act==="delete-profile"){
+      if (!confirm('Excluir o perfil "'+name+'" e todo o progresso salvo dele?')) return;
+      profiles = profiles.filter(function(p){ return p.name!==name; });
+      saveProfiles(profiles);
+      try { localStorage.removeItem(profileSaveKey(name)); } catch(e){}
+      renderProfileList();
+    }
+  });
+
+  function renderNewSwatches(){
+    document.getElementById("newColorSwatches").innerHTML = PLAYER_COLORS.map(function(c){
+      return '<button type="button" class="swatch'+(newColorSel===c?' sel':'')+'" data-color="'+c+'" style="background:'+c+'"></button>';
+    }).join("");
+    document.getElementById("newMascotSwatches").innerHTML = PLAYER_COLORS.map(function(c){
+      return '<button type="button" class="swatch'+(newMascotColorSel===c?' sel':'')+'" data-color="'+c+'" style="background:'+c+'"></button>';
+    }).join("");
+  }
+  document.getElementById("newColorSwatches").addEventListener("click", function(e){ var b=e.target.closest(".swatch"); if(!b) return; newColorSel=b.dataset.color; renderNewSwatches(); });
+  document.getElementById("newMascotSwatches").addEventListener("click", function(e){ var b=e.target.closest(".swatch"); if(!b) return; newMascotColorSel=b.dataset.color; renderNewSwatches(); });
+
+  document.getElementById("createProfileBtn").addEventListener("click", function(){
+    var name = document.getElementById("newName").value.trim();
+    var mascotName = document.getElementById("newMascotName").value.trim() || "Rex";
+    var pass = document.getElementById("newPass").value;
+    if (!name){ alert("Digite um nome de fazendeiro."); return; }
+    if (profiles.some(function(p){ return p.name===name; })){ alert("Já existe um perfil com esse nome."); return; }
+    var entry = { name:name, passwordFacade:pass, mascotName:mascotName, color:newColorSel, mascotColor:newMascotColorSel };
+    profiles.push(entry); saveProfiles(profiles);
+    state = freshState({ name:name, color:newColorSel, mascotName:mascotName, mascotColor:newMascotColorSel });
+    activeProfile = name;
+    try { localStorage.setItem("fazenda-active-profile-v1", name); } catch(e){}
+    saveState();
+    resetRuntimeForNewSession();
+    enterGame();
+  });
+
+  function exportSave(){
+    if (!state) return;
+    var blob = new Blob([JSON.stringify(state)], { type:"application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "fazenda-"+(state.player.name||"save").replace(/[^a-z0-9]+/gi,"_")+".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  document.getElementById("exportBtn").addEventListener("click", exportSave);
+
+  function farmSummary(s, label){
+    var animalsTotal = Object.keys(s.animals).reduce(function(a,t){ return a+s.animals[t].count; },0);
+    var plantsActive = s.plots.filter(function(p){ return p.crop; }).length;
+    var plotsUnlocked = s.plots.filter(function(p){ return !p.locked; }).length;
+    return '<div class="zone-actions" style="text-align:left;">' +
+      '<div class="zone-title">'+escapeHtml(label)+'</div>' +
+      '<div class="zone-meta">Dia '+s.day+'</div>' +
+      '<div class="zone-meta">Caixa: '+fmtMoney(s.cash)+'</div>' +
+      '<div class="zone-meta">Patrimônio: ~'+fmtMoney(Math.round(s.cash))+'</div>' +
+      '<div class="zone-meta">Animais: '+animalsTotal+'</div>' +
+      '<div class="zone-meta">Talhões desbravados: '+plotsUnlocked+'/'+s.plots.length+'</div>' +
+      '<div class="zone-meta">Plantios ativos: '+plantsActive+'</div>' +
+      '<div class="zone-meta">Madeira: '+s.inventory.madeira+' · Pedra: '+s.inventory.pedra+' · Minério: '+s.inventory.minerio+'</div>' +
+      '</div>';
+  }
+  function showCompare(mine, theirs, theirName){
+    document.getElementById("compareSub").textContent = 'Importado com sucesso — "'+theirName+'" agora também está salvo como perfil. Use "Trocar perfil" pra jogar como ele(a).';
+    document.getElementById("compareGrid").innerHTML = farmSummary(mine, mine.player.name+" (você)") + farmSummary(theirs, theirName);
+    document.getElementById("compareOverlay").classList.remove("hidden");
+  }
+  document.getElementById("closeCompareBtn").addEventListener("click", function(){
+    document.getElementById("compareOverlay").classList.add("hidden");
+  });
+
+  document.getElementById("importBtn").addEventListener("click", function(){
+    document.getElementById("importFile").click();
+  });
+  document.getElementById("importFile").addEventListener("change", function(e){
+    var file = e.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var imported = JSON.parse(reader.result);
+        if (!imported || typeof imported.day!=="number" || !imported.player){ alert("Arquivo inválido — confira se é um save exportado deste jogo."); return; }
+        imported = normalizeState(imported);
+        var baseName = imported.player.name || "Amigo";
+        var name = baseName, n = 1;
+        while (profiles.some(function(p){ return p.name===name; })){ n++; name = baseName+" "+n; }
+        profiles.push({ name:name, passwordFacade:"", mascotName:imported.player.mascotName, color:imported.player.color, mascotColor:imported.player.mascotColor });
+        saveProfiles(profiles);
+        try { localStorage.setItem(profileSaveKey(name), JSON.stringify(imported)); } catch(err){}
+        if (state) showCompare(state, imported, name);
+      } catch(err){
+        alert("Não consegui ler esse arquivo — confira se é um save exportado do jogo.");
+      }
+      document.getElementById("importFile").value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("switchProfileBtn").addEventListener("click", function(){
+    if (!gameActive) return;
+    gameActive = false;
+    profiles = loadProfiles();
+    renderProfileList();
+    loginOverlay.classList.remove("hidden");
+  });
+
+  // ---- init ----
+  renderNewSwatches();
+  (function tryAutoResume(){
+    try {
+      var last = localStorage.getItem("fazenda-active-profile-v1");
+      if (last && profiles.some(function(p){ return p.name===last; })){ startProfile(last); return; }
+    } catch(e){}
+    renderProfileList();
+  })();
+  requestAnimationFrame(frame);
+})();
+</script>
