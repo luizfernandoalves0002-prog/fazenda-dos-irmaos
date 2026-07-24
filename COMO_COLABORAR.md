@@ -45,13 +45,13 @@ git commit -m "descreve o que você mudou aqui"
 git push -u origin melhoria/nome-da-melhoria
 ```
 
-**5. Abre o Pull Request:** entra no site do repositório — o GitHub mostra um botão amarelo **"Compare & pull request"**, é só clicar e criar. (Ou, no terminal: `gh pr create --fill`.)
+**5. Abre o Pull Request:** entra no site do repositório — o GitHub mostra um botão amarelo **"Compare & pull request"**, é só clicar e criar. Se o botão amarelo não aparecer (ele some depois de umas horas): aba **Pull requests** → **New pull request** → em "compare", escolhe sua branch → **Create pull request**.
 
 **6. O robô comenta no PR um link de preview jogável.** Manda o link pro outro — ele joga a versão nova **sem instalar nada e sem o jogo oficial mudar**.
 
-**7. O outro testou e gostou?** Ele aprova no próprio PR (aba "Files changed" → "Review changes" → "Approve"). Achou problema? Comenta no PR, você arruma, dá push de novo na mesma branch — o robô atualiza o link sozinho e o outro testa a versão nova.
+**7. O outro testou e gostou?** Ele aprova no próprio PR: aba **"Files changed"** → **"Review changes"** → marca **"Approve"** → **"Submit review"** (sem clicar no Submit, não conta). Achou problema? Comenta no PR, você arruma, dá push de novo na mesma branch — o robô atualiza o link sozinho e o outro testa **e aprova de novo** (todo commit novo derruba a aprovação anterior automaticamente; é assim que garantimos que os dois viram a versão final).
 
-**8. Merge:** botão verde **"Merge pull request"** no PR. Se o GitHub mostrar **"Update branch"** antes (significa que a `main` andou enquanto o PR tava aberto), clica nele, espera o robô comentar o link novo e o outro dá uma última olhada — é rápido, e garante que o que vai pro ar é exatamente o que foi testado.
+**8. Merge:** botão verde **"Merge pull request"** no PR. Se o GitHub mostrar **"Update branch"** antes (significa que a `main` andou enquanto o PR tava aberto), clica nele, espera o robô comentar o link novo e o outro testa e **aprova de novo** — é rápido, e garante que o que vai pro ar é exatamente o que foi testado.
 
 Em ~1 minuto depois do merge, o jogo oficial atualiza.
 
@@ -77,12 +77,25 @@ O jogo oficial não é afetado por nada disso: o save de quem joga o oficial fic
 
 ## Pra nunca sobrescrever o trabalho um do outro
 
-- **Nunca usar `git push --force`.** Se o push for rejeitado, a resposta é `git pull` — NUNCA `--force`. Push rejeitado significa que o outro publicou coisa nova; forçar apaga o trabalho dele do ar.
+- **Nunca usar `git push --force`.** Push rejeitado na sua **branch**? A resposta é `git pull` — NUNCA `--force` (rejeição significa que tem coisa nova lá; forçar apaga o trabalho do outro do ar). Push rejeitado na **`main`**? Não insiste e não dá pull em loop — você commitou na `main` local sem querer; segue a receita da seção abaixo.
 - **Sempre `git pull` na `main` antes de criar branch nova.**
 - **Uma melhoria por PR**, e mergeia rápido. Branch que fica dias aberta é a receita do conflito — o `index.html` é um arquivo só.
 - **A `main` andou enquanto seu PR tava aberto?** Usa o botão **"Update branch"** no PR (ou `git pull origin main` na sua branch + push). O robô comenta o link novo e o outro re-testa antes do merge.
 - **Conflito NUNCA se resolve no botão "Resolve conflicts" do site** — é um editor de texto cego, sem rodar o jogo. Sempre local: resolve, roda o jogo, testa, commit e push — e o outro re-testa o preview antes do merge.
 - **Avisa no grupo o que você vai mexer** antes de começar, pra não pegarem a mesma parte do arquivo ao mesmo tempo.
+
+## Esqueci e commitei na `main` local, e agora?
+
+Acontece, e nada se perde — é só levar seus commits pra uma branch:
+
+```bash
+git checkout -b melhoria/nome-da-melhoria
+git push -u origin melhoria/nome-da-melhoria
+git checkout main
+git reset --hard origin/main
+```
+
+(Traduzindo: cria uma branch com o que você fez, sobe ela, e a `main` local volta a ser igual à oficial.) Daí é só abrir o PR normalmente. Ou pede pro Claude Code: *"commitei na main sem querer, move pra uma branch e deixa a main local igual à origin"*.
 
 ## Quebrou no ar? (como desfazer)
 
@@ -97,13 +110,15 @@ Emergência de verdade (jogo quebrado no ar e o outro inacessível): o Luiz, com
 
 Pra o GitHub **garantir** essas regras (em vez de depender de disciplina), o Luiz — dono do repo — ativa a proteção da `main`:
 
+Atenção: o GitHub vai te oferecer **"Add branch ruleset"** com destaque — **ignora esse**. Procura o botão/link **"Add classic branch protection rule"** (é outro formulário, e é o que bate com os passos abaixo).
+
 1. No site do repositório: **Settings → Branches → Add classic branch protection rule**
 2. Em "Branch name pattern", escreve: `main`
 3. Marca **"Require a pull request before merging"** e, dentro dela:
    - **"Require approvals"** com **1** aprovação
    - **"Dismiss stale pull request approvals when new commits are pushed"** (push novo derruba a aprovação antiga — o outro sempre revê a versão final)
    - **"Require approval of the most recent reviewable push"** (quem deu o último push não pode ser o único a aprovar)
-4. Marca **"Require status checks to pass before merging"**, busca e seleciona **`comentar-preview`**, e dentro dela marca **"Require branches to be up to date before merging"** (o GitHub passa a exigir o "Update branch" quando a `main` andou — nada mergeia defasado)
+4. Marca **"Require status checks to pass before merging"**, busca e seleciona **`comentar-preview`**, e dentro dela marca **"Require branches to be up to date before merging"** (o GitHub passa a exigir o "Update branch" quando a `main` andou — nada mergeia defasado). Se `comentar-preview` não aparecer na busca, é porque o robô não rodou nos últimos dias: abre um PR de teste qualquer (pode fechar sem mergear), espera o robô comentar nele, e volta aqui — agora aparece.
 5. Marca **"Do not allow bypassing the above settings"** (vale pra todo mundo, inclusive o dono)
 6. Clica em **"Create"**
 
