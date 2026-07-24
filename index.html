@@ -2133,12 +2133,14 @@
 
   function exportSave(){
     if (!state) return;
+    var filename = "fazenda-"+(state.player.name||"save").replace(/[^a-z0-9]+/gi,"_")+".json";
     var blob = new Blob([JSON.stringify(state)], { type:"application/json" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
-    a.href = url; a.download = "fazenda-"+(state.player.name||"save").replace(/[^a-z0-9]+/gi,"_")+".json";
+    a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    alert('Salvo! O arquivo "'+filename+'" foi baixado — confira a barra de notificações ou a pasta Downloads do celular pra pegar ele e mandar pro seu amigo.');
   }
   document.getElementById("exportBtn").addEventListener("click", exportSave);
 
