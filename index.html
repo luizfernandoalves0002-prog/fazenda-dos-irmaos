@@ -1,5 +1,6 @@
+<meta charset="utf-8">
 <title>Fazenda dos Irmãos</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
   :root{
     --bg: #e8e6d6; --panel: #f5f3e8; --panel-2: #ded9c4; --ink: #2a2620;
@@ -29,49 +30,48 @@
   .app{
     background: var(--bg); color: var(--ink);
     font-family: "Segoe UI", "Segoe UI Semibold", system-ui, -apple-system, sans-serif;
-    min-height: 100vh; padding: 20px 16px 60px;
+    height: 100vh; height: 100dvh; overflow: hidden;
   }
-  .wrap{ max-width: 1180px; margin: 0 auto; }
+  .wrap{ width:100%; height:100%; }
 
+  /* ---- HUD do topo: título + placar flutuando sobre o mapa ---- */
   .masthead{
-    border-bottom: 3px double var(--line); padding-bottom: 12px; margin-bottom: 16px; position:relative;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
+    background: linear-gradient(to bottom, rgba(10,14,6,0.55), rgba(10,14,6,0));
+    pointer-events: none;
   }
-  .masthead-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-  .masthead h1{ margin:0; font-size: clamp(1.4rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; text-wrap: balance; }
-  .masthead .sub{ color: var(--ink-dim); font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 4px;}
-  .stat-row{ display:flex; gap:10px; flex-wrap: wrap; align-items:center; margin-top:12px; }
-  .stat{ background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 12px; min-width: 84px; text-align:right; }
-  .stat .k{ display:block; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-dim); }
-  .stat .v{ font-variant-numeric: tabular-nums; font-weight:700; font-size: 1.05rem; font-family: "Consolas", "Cascadia Mono", monospace; }
+  .masthead > *{ pointer-events: auto; }
+  .masthead-row{ display:flex; align-items:center; gap:12px; flex:1; min-width:0; }
+  .masthead h1{ margin:0; font-size: clamp(0.95rem, 1.6vw, 1.3rem); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color:#f2eed9; text-shadow: 0 1px 3px rgba(0,0,0,0.65); white-space:nowrap; }
+  .masthead .sub{ color: rgba(242,238,217,0.78); font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.65); }
+  .stat-row{ display:flex; gap:8px; flex-wrap: wrap; align-items:center; }
+  .stat{ background: var(--panel); background: color-mix(in srgb, var(--panel) 86%, transparent); backdrop-filter: blur(4px); border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 10px; min-width: 78px; text-align:right; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+  .stat .k{ display:block; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-dim); }
+  .stat .v{ font-variant-numeric: tabular-nums; font-weight:700; font-size: 0.98rem; font-family: "Consolas", "Cascadia Mono", monospace; }
 
   .hamburger-btn{
-    display:none; flex:0 0 auto; align-items:center; justify-content:center;
+    display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center;
     width:40px; height:40px; font-size:1.15rem; line-height:1;
     background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); cursor:pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   }
-  .menu-backdrop{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:190; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .menu-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:190; opacity:0; transition:opacity .2s; pointer-events:none; }
   .menu-backdrop.open{ opacity:1; pointer-events:auto; }
-  .menu-drawer{ display:flex; flex-direction:row; flex-wrap:wrap; gap:8px; align-items:center; }
-  .menu-drawer-head{ display:none; }
-  .menu-divider{ display:none; }
-
-  @media (max-width: 700px){
-    .hamburger-btn{ display:inline-flex; }
-    .menu-backdrop{ display:block; }
-    .menu-drawer{
-      position:fixed; top:0; right:0; bottom:0; width:82%; max-width:300px;
-      background:var(--panel); flex-direction:column; align-items:stretch; gap:8px;
-      padding:16px; transform:translateX(100%); transition:transform .25s ease;
-      z-index:200; overflow-y:auto; box-shadow:-6px 0 24px rgba(0,0,0,0.35); border-left:1px solid var(--line);
-    }
-    .menu-drawer.open{ transform:translateX(0); }
-    .menu-drawer-head{ display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; margin-bottom:2px; border-bottom:1px solid var(--line); }
-    .menu-drawer-head span{ font-weight:800; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.04em; }
-    .menu-drawer .themebtn{ text-align:left; padding:11px 12px; font-size:0.82rem; width:100%; }
-    .menu-divider{
-      display:block; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim);
-      margin:8px 0 0; padding-top:10px; border-top:1px dashed var(--line);
-    }
+  .menu-drawer{
+    position:fixed; top:0; right:0; bottom:0; width:82%; max-width:300px;
+    background:var(--panel); display:flex; flex-direction:column; align-items:stretch; gap:8px;
+    padding:16px; transform:translateX(100%); transition:transform .25s ease;
+    z-index:200; overflow-y:auto; box-shadow:-6px 0 24px rgba(0,0,0,0.35); border-left:1px solid var(--line);
+  }
+  .menu-drawer.open{ transform:translateX(0); }
+  .menu-drawer-head{ display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; margin-bottom:2px; border-bottom:1px solid var(--line); }
+  .menu-drawer-head span{ font-weight:800; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.04em; }
+  .menu-drawer .themebtn{ text-align:left; padding:11px 12px; font-size:0.82rem; width:100%; }
+  .menu-divider{
+    display:block; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim);
+    margin:8px 0 0; padding-top:10px; border-top:1px dashed var(--line);
   }
 
   button{
@@ -88,50 +88,123 @@
   button:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce){ *{ transition: none !important; } }
 
-  .grid{ display:grid; grid-template-columns: 1fr 320px; grid-template-areas: "game side" "log log"; gap: 16px; }
-  @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; grid-template-areas: "game" "side" "log"; } }
+  /* ---- palco: o mapa ocupa a tela inteira; o resto é HUD flutuante ---- */
+  .grid{ display: contents; }
 
   .panel{ background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
   .panel h2{ margin: 0 0 10px; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); font-weight: 700; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
 
-  #gamePanel{ grid-area: game; }
-  #side{ grid-area: side; }
-  #logPanel{ grid-area: log; }
+  #gamePanel{ display: contents; }
+  #gamePanel h2{ display:none; }
 
-  .gamewrap{ position:relative; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; background:#232920; line-height:0; }
-  #gameCanvas{ display:block; width:100%; height:auto; cursor: pointer; touch-action:none; user-select:none; }
-  .hint{ margin-top:8px; font-size:0.68rem; color: var(--ink-dim); }
-  .hint kbd{ background:var(--panel-2); border:1px solid var(--line); border-radius:2px; padding:1px 5px; font-family:"Consolas",monospace; }
+  /* sem z-index aqui de propósito: um stacking context no mapa prenderia o botão E atrás dos painéis */
+  .gamewrap{ position:fixed; inset:0; background:#26331a; overflow:hidden; line-height:0; border:none; border-radius:0; }
+  #gameCanvas{ display:block; width:100%; height:100%; cursor: pointer; touch-action:none; user-select:none; }
+
+  /* dica inline dentro dos painéis (texto corrido) */
+  .hint{ font-size:0.68rem; color: var(--ink-dim); }
+
+  /* faixa de dica flutuante sobre o mapa */
+  .hud-hint{
+    position: fixed; z-index: 20; bottom: calc(64px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+    margin:0; font-size:0.66rem; color:#e8e4cf; background: rgba(10,14,6,0.55); backdrop-filter: blur(3px);
+    padding: 4px 12px; border-radius: 20px; pointer-events:none; white-space:nowrap; max-width: 94vw; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hud-hint kbd{ background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:2px; padding:0 5px; font-family:"Consolas",monospace; color:#f2eed9; }
   .hint-mobile{ display:none; }
 
+  /* painel de ações (a "jornada"): coluna à direita no desktop */
+  #side{
+    position: fixed; z-index: 30; top: calc(58px + env(safe-area-inset-top)); right: 12px; width: 300px;
+    max-height: calc(100vh - 58px - 84px); max-height: calc(100dvh - 58px - 84px);
+    overflow-y: auto; overscroll-behavior: contain; padding: 0;
+    background: var(--panel); background: color-mix(in srgb, var(--panel) 92%, transparent);
+    backdrop-filter: blur(6px); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  #zoneHeading{ margin:0; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  #side .inv-strip{ margin: 10px 12px 12px; }
+  #side #zonePanel{ padding: 0 12px 14px; }
+
+  /* diário: canto inferior esquerdo — só em telas largas, onde não rouba espaço da fazenda */
+  #logPanel{
+    display: none;
+    position: fixed; z-index: 25; left: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); width: 320px;
+    background: var(--panel); background: color-mix(in srgb, var(--panel) 90%, transparent);
+    backdrop-filter: blur(6px); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  #logPanel.open{ display:block; }
+  #logToggle{ display:flex; }
+  @media (min-width: 1400px){
+    #logPanel{ display:block; }
+    #logToggle{ display:none; }
+  }
+
   .action-fab{
-    display:none; position:absolute; right:14px; bottom:14px; width:56px; height:56px; border-radius:50%;
+    display:none; position:fixed; right:14px; bottom: calc(118px + env(safe-area-inset-bottom)); width:60px; height:60px; border-radius:50%;
     align-items:center; justify-content:center; background:var(--accent); color:var(--accent-ink);
-    border:2px solid rgba(255,255,255,0.3); font-weight:800; font-size:1.15rem;
-    box-shadow:0 4px 14px rgba(0,0,0,0.45); z-index:20;
+    border:2px solid rgba(255,255,255,0.3); font-weight:800; font-size:1.2rem;
+    box-shadow:0 4px 14px rgba(0,0,0,0.45); z-index:35;
   }
   .action-fab:active{ transform:scale(0.94); }
 
-  @media (max-width: 700px){
-    .app{ padding:10px 4px 24px; }
-    #gamePanel{ padding:4px; }
-    #gamePanel h2{ display:none; }
-    .hint-desktop{ display:none; }
-    .hint-mobile{ display:block; }
-    .action-fab{ display:flex; }
-    button{ padding:7px 10px; font-size:0.78rem; }
-    .zone-actions button, table.market button{ min-height:40px; }
-    .daybar{ position:sticky; bottom:0; background:var(--bg); padding-top:10px; margin-left:-8px; margin-right:-8px; padding-left:8px; padding-right:8px; border-top:1px solid var(--line); z-index:50; }
+  /* ---- tela baixa (celular deitado): tudo compacto, mapa manda ---- */
+  @media (max-height: 520px){
+    .masthead h1, .masthead .sub{ display:none; }
+    .masthead{ padding: calc(4px + env(safe-area-inset-top)) 8px 4px; }
+    .action-fab{ display:flex; width:52px; height:52px; bottom: calc(70px + env(safe-area-inset-bottom)); }
+    .hud-hint{ display:none; }
+    #side{ top: calc(46px + env(safe-area-inset-top)); width:260px; max-height: calc(100dvh - 46px - 68px); }
+    #zoneHeading{ padding:8px 12px; }
+    #side .inv-strip{ margin:8px 10px; padding-bottom:8px; }
+    #side #zonePanel{ padding:0 10px 10px; }
+    .daybar{ padding: 5px 10px calc(5px + env(safe-area-inset-bottom)); }
+    .daybar .msg{ display:none; }
+    .day-progress{ margin-top:0; }
+    .bigbtn{ font-size:0.8rem; padding:8px 12px; }
   }
 
-  @media (max-width: 900px) and (orientation: landscape){
-    .app{ padding:6px 4px 16px; }
-    .masthead{ padding-bottom:6px; margin-bottom:8px; }
-    .stat{ padding:4px 8px; min-width:0; }
-    #gamePanel{ padding:2px; }
-    .gamewrap{ margin:0 auto; width:fit-content; }
-    #gameCanvas{ width:auto; height:88vh; max-width:100%; }
-    .hint{ display:none; }
+  /* ---- celular: painel de ações vira gaveta de baixo; diário sob demanda ---- */
+  @media (max-width: 700px){
+    .masthead{ padding: calc(6px + env(safe-area-inset-top)) 8px 6px; gap:6px; flex-wrap:nowrap; }
+    .masthead .sub{ display:none; }
+    .masthead h1{ display:none; }
+    .masthead-row{ flex: 0 0 auto; }
+    .stat-row{ flex:1; justify-content:flex-end; flex-wrap:nowrap; gap:5px; min-width:0; }
+    .stat{ min-width: 0; padding: 3px 7px; }
+    .stat .k{ font-size:0.52rem; }
+    .stat .v{ font-size: 0.82rem; }
+    .hint-desktop{ display:none; }
+    .hint-mobile{
+      display:block; bottom:auto; top: calc(54px + env(safe-area-inset-top));
+      white-space:normal; text-align:center; line-height:1.35; border-radius:10px; font-size:0.62rem;
+      left:8px; right:8px; transform:none; max-width:none;
+    }
+    .action-fab{ display:flex; }
+    button{ padding:8px 10px; font-size:0.8rem; }
+    .zone-actions button, table.market button{ min-height:44px; }
+
+    #side{
+      top:auto; left:0; right:0; width:auto;
+      bottom: var(--daybar-h, 56px); max-height: 46vh; max-height: 46dvh;
+      border-radius: 10px 10px 0 0; border-bottom:none;
+      transform: translateY(calc(100% - 45px));
+      transition: transform .25s ease;
+    }
+    #side.open{ transform: translateY(0); }
+    #zoneHeading{ cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding: 13px 16px; -webkit-tap-highlight-color: transparent; }
+    #zoneHeading::after{ content:"▲ toca pra agir"; font-size:0.6rem; color:var(--ink-dim); letter-spacing:0.05em; }
+    #side.open #zoneHeading::after{ content:"▼ fechar"; }
+    /* gaveta aberta: os botões redondos sairiam por cima das ações */
+    .drawer-open #actionFab, .drawer-open #logToggle{ display:none; }
+
+    #logPanel{ display:none; left:8px; right:8px; width:auto; bottom: calc(var(--daybar-h, 56px) + 8px); z-index:36; }
+    #logPanel.open{ display:block; }
+    #logToggle{ display:flex; }
+    .daybar{ padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); gap:8px; }
+    .daybar .msg{ display:none; }
+    .day-progress{ margin-top:0; }
+    .speed-group button{ padding:7px 8px; font-size:0.72rem; }
+    .bigbtn{ font-size:0.8rem; padding:9px 12px; white-space:nowrap; }
   }
 
   .inv-strip{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--line); }
@@ -153,15 +226,21 @@
   table.market td.num{ font-variant-numeric: tabular-nums; font-family:"Consolas",monospace; text-align:right; }
   .price-up{ color: var(--accent); } .price-down{ color: var(--danger); }
 
-  .log{ max-height: 220px; overflow-y:auto; font-family:"Consolas","Cascadia Mono",monospace; font-size:0.78rem; line-height:1.6; }
+  .log{ max-height: 168px; overflow-y:auto; overscroll-behavior: contain; font-family:"Consolas","Cascadia Mono",monospace; font-size:0.76rem; line-height:1.55; }
   .log div{ border-bottom: 1px dashed var(--line); padding: 3px 0; }
   .log .day{ color: var(--gold); font-weight:700; }
   .log .tip{ color: var(--accent); }
 
-  .daybar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; flex-wrap:wrap;}
-  .daybar .msg{ font-size:0.8rem; color: var(--ink-dim); }
-  .daybar-left{ flex:1; min-width:220px; }
-  .daybar-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .daybar{
+    position: fixed; z-index: 45; left:0; right:0; bottom:0;
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:nowrap;
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+    background: var(--panel); background: color-mix(in srgb, var(--panel) 92%, transparent);
+    backdrop-filter: blur(6px); border-top: 1px solid var(--line); box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+  }
+  .daybar .msg{ font-size:0.76rem; color: var(--ink-dim); }
+  .daybar-left{ flex:1; min-width:0; }
+  .daybar-right{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; flex:0 0 auto; }
   .day-progress{ height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:8px; width:100%; max-width:280px; }
   .day-progress i{ display:block; height:100%; background:var(--accent); width:0%; }
   .speed-group{ display:flex; gap:4px; }
@@ -265,6 +344,7 @@
       </div>
       <div class="menu-drawer" id="menuDrawer">
         <div class="menu-drawer-head"><span>Menu</span><button class="ghost" id="menuClose" type="button" aria-label="Fechar menu">✕</button></div>
+        <button class="ghost themebtn" id="fullscreenToggle" type="button">Tela cheia</button>
         <button class="ghost themebtn" id="custToggle" type="button">Personagem</button>
         <button class="ghost themebtn" id="bagToggle" type="button">Mochila</button>
         <button class="ghost themebtn" id="themeToggle" title="Alternar tema" type="button">Tema</button>
@@ -303,8 +383,8 @@
           <canvas id="gameCanvas" width="800" height="560"></canvas>
           <button class="action-fab" id="actionFab" type="button" aria-label="Agir">E</button>
         </div>
-        <div class="hint hint-desktop"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> anda (ou clique no mapa pra caminhar até lá) · <kbd>E</kbd> agir/cortar/garimpar no que estiver perto</div>
-        <div class="hint hint-mobile">Toque no mapa pra andar até lá · toque no botão <b>E</b> (ou nos botões do painel abaixo) pra agir/cortar/garimpar · dica: gire o celular deitado pra ver o mapa em tela cheia</div>
+        <div class="hud-hint hint-desktop"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> anda (ou clique no mapa pra caminhar até lá) · <kbd>E</kbd> agir no que estiver perto · <kbd>F</kbd> tela cheia</div>
+        <div class="hud-hint hint-mobile">Toque no mapa pra andar · botão <b>E</b> pra agir · puxe a aba de baixo pra ver as ações do lugar</div>
       </div>
 
       <div class="panel" id="side">
@@ -317,6 +397,7 @@
         <h2>Diário da Fazenda</h2>
         <div class="log" id="logContainer"></div>
       </div>
+      <button class="action-fab" id="logToggle" type="button" aria-label="Abrir diário da fazenda" style="right:auto;left:14px;font-size:1.4rem;background:var(--panel);color:var(--ink);border-color:var(--line);">📖</button>
     </div>
 
     <div class="daybar">
@@ -1180,9 +1261,82 @@
   var dayProgressBar = document.getElementById("dayProgressBar");
   var TILE = 40;
   var MAP_W = COLS*TILE, MAP_H = ROWS*TILE;
-  var OFFSET_X = Math.round((canvas.width-MAP_W)/2);
-  var OFFSET_Y = Math.round((canvas.height-MAP_H)/2);
   var MASCOT_LAG = 40;
+
+  // ---- câmera: o mapa preenche a tela inteira em qualquer resolução ----
+  // O canvas ocupa a tela toda, mas a fazenda é enquadrada na "área de jogo":
+  // o retângulo livre entre o placar (topo), a barra do dia (base) e os painéis laterais.
+  // Assim nada da fazenda fica escondido atrás do HUD.
+  var view = { scale: 1, cssW: 0, cssH: 0, inset: { top:0, right:0, bottom:0, left:0 } };
+  var OFFSET_X = 0, OFFSET_Y = 0;
+
+  function measureInsets(){
+    var mobile = window.matchMedia("(max-width: 700px)").matches;
+    var head = document.querySelector(".masthead");
+    var bar = document.querySelector(".daybar");
+    var ins = { top:0, right:0, bottom:0, left:0 };
+    if (head) ins.top = head.offsetHeight;
+    if (bar) ins.bottom = bar.offsetHeight;
+    if (mobile){
+      ins.bottom += 45; // aba de ações recolhida continua visível
+    } else {
+      var side = document.getElementById("side");
+      var log = document.getElementById("logPanel");
+      if (side && side.offsetWidth) ins.right = side.offsetWidth + 24;
+      // o diário só reserva espaço quando está fixo na tela (telas largas)
+      if (log && log.offsetWidth && !log.classList.contains("open")) ins.left = log.offsetWidth + 24;
+    }
+    return ins;
+  }
+
+  function layoutCanvas(){
+    var cssW = window.innerWidth, cssH = window.innerHeight;
+    if (!cssW || !cssH) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = Math.round(cssW*dpr);
+    canvas.height = Math.round(cssH*dpr);
+
+    view.cssW = cssW; view.cssH = cssH;
+    view.inset = measureInsets();
+
+    // Cabe a fazenda inteira na área de jogo? Mostra ela toda, no maior tamanho possível (desktop).
+    // Não cabe? Enche a tela pelo lado que sobra e a câmera segue o jogador (celular) —
+    // melhor dar zoom e acompanhar do que espremer a fazenda numa faixa cercada de vazio.
+    var availW = Math.max(120, cssW - view.inset.left - view.inset.right);
+    var availH = Math.max(120, cssH - view.inset.top - view.inset.bottom);
+    var contain = Math.min(availW/MAP_W, availH/MAP_H);
+    var cover = Math.max(availW/MAP_W, availH/MAP_H);
+    view.scale = contain >= 1 ? Math.min(contain, 2.6) : Math.max(1, Math.min(cover, 2.6));
+
+    ctx.setTransform(dpr*view.scale, 0, 0, dpr*view.scale, 0, 0);
+    recenterCamera();
+  }
+
+  // Mapa cabe na área de jogo: fica parado, centralizado nela.
+  // Não cabe: câmera segue o jogador, sem nunca mostrar vazio além da borda do mapa.
+  function recenterCamera(){
+    var s = view.scale;
+    var viewW = view.cssW/s, viewH = view.cssH/s;
+    var l = view.inset.left/s, r = view.inset.right/s;
+    var t = view.inset.top/s, b = view.inset.bottom/s;
+    var availW = viewW - l - r, availH = viewH - t - b;
+
+    if (MAP_W <= availW) OFFSET_X = Math.round(l + (availW-MAP_W)/2);
+    else OFFSET_X = Math.round(Math.max(viewW-MAP_W, Math.min(0, viewW/2 - runtime.px)));
+
+    if (MAP_H <= availH) OFFSET_Y = Math.round(t + (availH-MAP_H)/2);
+    else OFFSET_Y = Math.round(Math.max(viewH-MAP_H, Math.min(0, viewH/2 - runtime.py)));
+  }
+
+  // converte um ponto da tela (clique/toque) pra coordenada do mundo
+  function screenToWorld(clientX, clientY){
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: (clientX-rect.left)/view.scale - OFFSET_X,
+      y: (clientY-rect.top)/view.scale - OFFSET_Y
+    };
+  }
 
   var DAY_DURATION_MS = 240000;
   var runtime = {
@@ -1252,6 +1406,20 @@
     }
     return list;
   })();
+
+  // terra fora da cerca: sobra quando a tela é mais "quadrada" que a fazenda.
+  // Xadrez sutil no mesmo ritmo dos tiles pra ler como campo, não como vazio.
+  function drawOutside(viewW, viewH){
+    ctx.fillStyle = "#26331a"; ctx.fillRect(0,0,viewW,viewH);
+    var startX = OFFSET_X % (TILE*2), startY = OFFSET_Y % (TILE*2);
+    ctx.fillStyle = "rgba(255,255,255,0.018)";
+    for (var y=startY-TILE*2; y<viewH; y+=TILE*2){
+      for (var x=startX-TILE*2; x<viewW; x+=TILE*2){
+        ctx.fillRect(x, y, TILE, TILE);
+        ctx.fillRect(x+TILE, y+TILE, TILE, TILE);
+      }
+    }
+  }
 
   function drawGrass(){
     var grad = ctx.createLinearGradient(0,0,0,MAP_H);
@@ -1935,10 +2103,16 @@
 
     var z = computeZone();
     var zKey = z ? z.key : null;
-    if (zKey !== runtime.zoneKey){ runtime.zoneKey = zKey; runtime.zone = z; renderZonePanel(); }
+    if (zKey !== runtime.zoneKey){
+      runtime.zoneKey = zKey; runtime.zone = z; renderZonePanel();
+      // no celular a gaveta de ações sobe sozinha ao chegar num lugar e some ao sair
+      if (z) openZoneDrawer(); else closeZoneDrawer();
+    }
 
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = "#232920"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    recenterCamera();
+    var viewW = view.cssW/view.scale, viewH = view.cssH/view.scale;
+    ctx.clearRect(0,0,viewW,viewH);
+    drawOutside(viewW, viewH);
     ctx.save();
     ctx.translate(OFFSET_X, OFFSET_Y);
     ctx.beginPath(); ctx.rect(0,0,MAP_W,MAP_H); ctx.clip();
@@ -1982,6 +2156,7 @@
     else if (k==="a"||k==="arrowleft") runtime.keys.left = true;
     else if (k==="d"||k==="arrowright") runtime.keys.right = true;
     else if (k==="e") handleInteract();
+    else if (k==="f") toggleFullscreen();
   });
   window.addEventListener("keyup", function(e){
     if (isTypingTarget(document.activeElement)) return;
@@ -1993,17 +2168,13 @@
   });
 
   canvas.addEventListener("click", function(e){
-    var rect = canvas.getBoundingClientRect();
-    var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
-    var x = (e.clientX-rect.left)*scaleX - OFFSET_X, y = (e.clientY-rect.top)*scaleY - OFFSET_Y;
-    runtime.target = { x:x, y:y }; runtime.keys = {};
+    var p = screenToWorld(e.clientX, e.clientY);
+    runtime.target = { x:p.x, y:p.y }; runtime.keys = {};
   });
   canvas.addEventListener("touchstart", function(e){
     if (!e.touches[0]) return;
-    var rect = canvas.getBoundingClientRect();
-    var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
-    var x = (e.touches[0].clientX-rect.left)*scaleX - OFFSET_X, y = (e.touches[0].clientY-rect.top)*scaleY - OFFSET_Y;
-    runtime.target = { x:x, y:y }; runtime.keys = {};
+    var p = screenToWorld(e.touches[0].clientX, e.touches[0].clientY);
+    runtime.target = { x:p.x, y:p.y }; runtime.keys = {};
   }, {passive:true});
 
   function handleInteract(){
@@ -2027,6 +2198,53 @@
   var actionFab = document.getElementById("actionFab");
   if (actionFab) actionFab.addEventListener("click", function(e){ e.stopPropagation(); handleInteract(); });
 
+  // ---- tela cheia + relayout ----
+  var sidePanel = document.getElementById("side");
+  var logPanel = document.getElementById("logPanel");
+
+  function isMobileLayout(){ return window.matchMedia("(max-width: 700px)").matches; }
+
+  function syncLayoutVars(){
+    var daybar = document.querySelector(".daybar");
+    if (daybar) document.documentElement.style.setProperty("--daybar-h", daybar.offsetHeight + "px");
+  }
+
+  function relayout(){ syncLayoutVars(); layoutCanvas(); }
+  window.addEventListener("resize", relayout);
+  window.addEventListener("orientationchange", function(){ setTimeout(relayout, 250); });
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", relayout);
+
+  function toggleFullscreen(){
+    var el = document.documentElement;
+    if (!document.fullscreenElement){
+      if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen().catch(function(){});
+    }
+  }
+  document.addEventListener("fullscreenchange", function(){ setTimeout(relayout, 120); });
+  var fullscreenToggle = document.getElementById("fullscreenToggle");
+  if (fullscreenToggle) fullscreenToggle.addEventListener("click", toggleFullscreen);
+
+  // gaveta de ações (celular): puxa de baixo pra ver o que dá pra fazer no lugar
+  var zoneHeading = document.getElementById("zoneHeading");
+  if (zoneHeading) zoneHeading.addEventListener("click", function(){
+    if (isMobileLayout()) setZoneDrawer(!sidePanel.classList.contains("open"));
+  });
+  function setZoneDrawer(open){
+    sidePanel.classList.toggle("open", open);
+    document.documentElement.classList.toggle("drawer-open", open);
+  }
+  // ao chegar num lugar novo com ação, a gaveta chama atenção abrindo sozinha
+  function openZoneDrawer(){ if (isMobileLayout()) setZoneDrawer(true); }
+  function closeZoneDrawer(){ setZoneDrawer(false); }
+
+  var logToggle = document.getElementById("logToggle");
+  if (logToggle) logToggle.addEventListener("click", function(e){
+    e.stopPropagation(); logPanel.classList.toggle("open");
+  });
+  // o diário aberto por cima não deve reenquadrar a fazenda
+
   // ---- login / profiles ----
   var profiles = loadProfiles();
   var newColorSel = PLAYER_COLORS[0], newMascotColorSel = PLAYER_COLORS[1];
@@ -2048,6 +2266,7 @@
     renderSwatches(); renderMascotSwatches();
     document.querySelectorAll("#speedGroup .speedbtn").forEach(function(x){ x.classList.toggle("sel", x.dataset.speed==="1"); });
     render();
+    relayout();
   }
 
   function startProfile(name){
@@ -2204,6 +2423,7 @@
 
   // ---- init ----
   renderNewSwatches();
+  relayout();
   (function tryAutoResume(){
     try {
       var last = localStorage.getItem("fazenda-active-profile-v1");
